@@ -5,23 +5,25 @@ import (
 )
 
 var (
-	Handlers map[string]func() Handler
+	handlers map[string]func() Handler
 )
 
 type Handler interface {
 	SetBufferManager(bufferManager buffer.BufferManager) (err error)
+	Open()
 	Write(logString string)
 	Flush()
+	Close()
 }
 
 func GetHandler(name string) (Handler Handler, err error) {
-	Handler, ok := Handlers[name]
+	newFunc, ok := handlers[name]
 	if !ok {
 		return nil, errors.Errorf("not found Handler (%v)", name)
 	}
-	return Handler, nil
+	return newFunc(), nil
 }
 
-func RegisterHandler(name string, newFunc func() HandlerManager) {
-	Handlers[name] = newFunc
+func RegisterHandler(name string, newFunc func() Handler) {
+	handlers[name] = newFunc
 }

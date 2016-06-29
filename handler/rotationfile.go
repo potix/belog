@@ -157,5 +157,5 @@ func NewRotationFileHandler() (handler Handler) {
 }
 
 func init() {
-	handlers["RotationFile"] = NewRotationFile
+	RegisterHandler("RotationFile", NewRotationFileHandler)
 }

@@ -62,5 +62,5 @@ func NewStandardBuffer() (buffer BufferManager) {
 }
 
 func init() {
-	RegisterBuffer("StandardBuffer")
+	RegisterBuffer("StandardBuffer", NewStandardBuffer)
 }

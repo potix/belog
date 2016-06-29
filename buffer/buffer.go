@@ -14,11 +14,11 @@ type BufferManager interface {
 }
 
 func GetBuffer(name string) (buffer BufferManager, err error) {
-	buffer, ok := buffers[name]
+	newFunc, ok := buffers[name]
 	if !ok {
 		return nil, errors.Errorf("not found buffer (%v)", name)
 	}
-	return buffer, nil
+	return newFunc(), nil
 }
 
 func RegisterBuffer(name string, newFunc func() BufferManager) {
