@@ -33,12 +33,9 @@ const (
 type StandardBuffer struct {
 	Threshold    int
 	stringBuffer *bytes.Buffer
-	mutex        sync.Mutex
 }
 
 func (b *StandardBuffer) AddBuffer(logString string) (stringBuffer string, needFlush bool) {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
 	b.stringBuffer.WriteString(logString)
 	if b.stringBuffer.Len() > c.Threshold {
 		stringBuffer := b.stringBuffer.String()
@@ -49,8 +46,6 @@ func (b *StandardBuffer) AddBuffer(logString string) (stringBuffer string, needF
 }
 
 func (b *StandardBuffer) DrainBuffer() (stringBuffer string, needFlush bool) {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
 	if len(c.stringBuffer) > 0 {
 		stringBuffer := b.stringBuffer.String()
 		b.stringBuffer.Truncate(0)

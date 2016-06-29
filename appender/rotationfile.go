@@ -1,4 +1,4 @@
-package appender
+package handler
 
 import (
 	"os"
@@ -10,7 +10,7 @@ const (
 	defaultAsyncFlushInterval = 1
 )
 
-type RotationFileAppender struct {
+type RotationFileHandler struct {
 	LogFileName        string
 	LogDirPath         string
 	MaxGen             int
@@ -19,101 +19,134 @@ type RotationFileAppender struct {
 	AsyncFlushInterval int
 	bufferManager      buffer.BufferManager
 	scheduledFlush     bool
+	lastModifiedTime   time.Time
+	logDileSize        int64
+	logFile            *os.File
 	mutex              *sync.Mutex
 }
 
-func (a *RotationFileAppender) SetBufferManager(bufferManager buffer.BufferManager) (err error) {
+func (a *RotationFileHandler) SetBufferManager(bufferManager buffer.BufferManager) (err error) {
 	a.bufferManager = bufferManager
 	return nil
 }
 
-func (a *RotationFileAppender) Write(logString string) {
-	now := time.Now()
+func (a *RotationFileHandler) Write(logString string) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	if bufferManager != nil {
 		logBuffer, needFlush := bufferManager.AddBuffer(logString)
 		if needFlush {
-			a.writeLog(now, logBuffer)
+			a.writeLog(logBuffer)
 		}
+		// timer flush
 		if !scheduledFlush {
 			a.scheduledFlush = true
-			go a.waitAndFlush(now)
+			go a.timerFlush()
 		}
 	} else {
-		a.writeLog(now, logString)
+		a.writeLog(logString)
 	}
 }
 
-func (a *RotationFileAppender) Flush() {
-	now := time.Now()
+func (a *RotationFileHandler) Flush() {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	if bufferManager != nil {
 		logBuffer, needFlush := bufferManager.DrainBuffer()
 		if needFlush {
-			a.writeLog(now, logBuffer)
+			a.writeLog(logBuffer)
 		}
-		// file flush
-	} else {
-		// file flush
+	}
+	if c.logFile != nil {
+		c.logFile.Sync()
 	}
 }
 
-func (a *RotationFileAppender) waitAndFlush(now time.Time) {
+func (a *RotationFileHandler) timerFlush() {
 	<-time.After(time.Second)
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	logBuffer, needFlush := bufferManager.DrainBuffer()
 	if needFlush {
-		a.writeLog(now, logBuffer)
+		a.writeLog(logBuffer)
 	}
 	a.scheduledFlush = false
 }
 
-func (a *RotationFileAppender) writeLog(now time.Time, logBuffer string) {
-	sync.Once.Do(createLogDirPath)
-	file, err := getFile(time.Now())
-	if err != nil {
+func (a *RotationFileHandler) writeLog(logBuffer string) {
+	a.openLogFile()
+	now := time.Now()
+	a.rotateLogFile(now)
+	if a.logFile == nil {
 		// statistics
+		return
 	}
-	_, err := file.writeString(logBuffer)
+	wlen, err := a.logFile.writeString(logBuffer)
 	if err != nil {
 		// sstatistics
+		return
 	}
+	a.lastModifiedTime = now
+	a.logFileSize += int64(wlen)
 }
 
-func (a *RotationFileAppender) createLogDirPath() (err error) {
+func (a *RotationFileHandler) openLogFile() {
+	if a.logFile != nil {
+		return
+	}
+	// make directories
 	err := os.MkdirAll(a.LogDirPath, 0755)
 	if err != nil {
 		// statistics
+		return
 	}
+	// open log file
+	logFilePath := filepath.Join(c.LogDirPath, c.LogFileName)
+	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		// statisticsa
+		return
+	}
+	a.logFile = file
+	// get stat info
+	fileInfo, _ := a.logFile.Stat()
+	a.lastModifiedTime = fileInfo.ModTime()
+	a.logFileSize = fileInfo.Size()
 }
 
-func (a *RotationFileAppender) getFile(now time.Time) (file *File, err error) {
-	// check rotation
-	newFileName, needRotate := checkRotation(now)
-	if a.oldFileName != newFile
-	
-
-	if needRotation {
-		// open new file 
-		open new file	
-		// close old file
-		close old file
-		oldFile
+func (a *RotationFileHandler) rotateLogFile(now time.Time) {
+	if (a.lastModifiedTime.Year() == now.Year() &&
+		a.lastModifiedTime.YearDay() == now.YearDay()) &&
+		(a.MaxSize <= 0 || a.logFileSize < a.MaxSize) {
+		return
 	}
+	// get rotated file path
+	rotatedLogFilePath := a.getRotatedLogFilePath()
 
-	// XXXX
-	file, ok := a.newFile
-	if !ok {
-		return nil, errors.Errorf("not found file")
+	logFilePath := filepath.Join(c.LogDirPath, c.LogFileName)
+	// rename
+	err := os.Rename(logFilePath, rotatedLogFilePath)
+	if err != nil {
+		// statistics
+		return
 	}
-
-	return file, nil
+	// open new log file
+	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		// statistics
+		return
+	}
+	a.logFile.Close()
+	a.logFile = file
+	a.lastModifiedTime = now
+	a.logFileSize = 0
 }
 
-func NewRotationFileAppender() (appender Appender) {
+func (a *RotationFileHandler) getRotatedLogFilePath() {
+	rotatedLogFilePath := filepath.Join(c.LogDirPath, rotatedLogFileName)
+}
+
+func NewRotationFileHandler() (handler Handler) {
 	return &rotationFile{
 		LogFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
 		LogDirPath:         "/var/log/",
@@ -124,5 +157,5 @@ func NewRotationFileAppender() (appender Appender) {
 }
 
 func init() {
-	appenders["RotationFile"] = NewRotationFile
+	handlers["RotationFile"] = NewRotationFile
 }

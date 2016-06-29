@@ -1,5 +1,7 @@
 package filter
 
+import sync
+
 type LogLevelFilter struct {
 	logLevel belog.LogLevel
 }
