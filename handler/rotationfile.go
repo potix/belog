@@ -30,6 +30,10 @@ func (a *RotationFileHandler) SetBufferManager(bufferManager buffer.BufferManage
 	return nil
 }
 
+func (a *RotationFileHandler) Open() {
+	a.openLogFile()
+}
+
 func (a *RotationFileHandler) Write(logString string) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
@@ -60,6 +64,16 @@ func (a *RotationFileHandler) Flush() {
 	if c.logFile != nil {
 		c.logFile.Sync()
 	}
+}
+
+func (a *RotationFileHandler) Close() {
+	if a.logFile == nil {
+		return
+	}
+	a.logFile.Close()
+	a.logFile = nil
+	a.lastModifiedTime = time.Time{}
+	a.logFileSize = 0
 }
 
 func (a *RotationFileHandler) timerFlush() {
