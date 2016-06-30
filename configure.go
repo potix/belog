@@ -64,15 +64,17 @@ func LoadConfig(configFilePath string) (err error) {
 	default:
 		return errors.Errorf("unexpected file extension")
 	}
-	setupLoggers(config)
+	return setupLoggers(config)
 }
 
 func setupLoggers(config *config) (err error) {
+	// XXXX
 	for name, loggerConfig := range config.Loggers {
 		filter, err := filter.GetFilter(loggerConfig.Filter.FilterName)
 		if err != nil {
 			return errors.Errorf("not found filter (%v)", loggerConfig.Filter.FilterName)
 		}
+		// XXX reflect
 		for _, filterParam := range loggerConfig.Filter.FilterParams {
 			filterMethod, filterArgs := parseParam(filterParam)
 			filter.filterMethod(filterArgs)
@@ -82,20 +84,27 @@ func setupLoggers(config *config) (err error) {
 		if err != nil {
 			return errors.Errorf("not found formatter (%v)", loggerConfig.Formatter.FormatterName)
 		}
+		// XXX reflect
 		for _, formatterParam := range loggerConfig.Formatter.FormatterParams {
 			formatterMethod, formatterArgs := parseParam(formatterParam)
 			formatter.formtterMethod(formatterArgs)
 		}
 
+		handlers := make([]*handler.Handler, 0)
 		for _, handlerConfig := range loggerConfig.handlers {
 			handler, err := formatter.GetHAndler(loggerConfig.Handler.HandlerName)
 			if err != nil {
 				return errors.Errorf("not found formatter (%v)", loggerConfig.Handler.HandlerName)
 			}
+			// XXX reflect
 			for _, handlerParam := range loggerConfig.Handler.HandlerParams {
 				handlerMethod, handlerArgs := parseParam(handlerParam)
 				handler.handlerMethod(handlerArgs)
 			}
+			handlers = append(handler, handler)
+		}
+		if err := SetLogger(name, filter, formatter, handlers); err != nil {
+			return err
 		}
 	}
 	return nil
