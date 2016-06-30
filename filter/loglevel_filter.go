@@ -18,5 +18,5 @@ func NewLogLevelFilter() (filter Filter) {
 }
 
 func init() {
-	RegisterFilter("LogLevel", NewLogLevelFilter)
+	RegisterFilter("LogLevelFilter", NewLogLevelFilter)
 }

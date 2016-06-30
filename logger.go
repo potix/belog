@@ -55,8 +55,8 @@ func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
 		log.fileName = fileNamw
 		log.lineNum = lineNum
 	}
-	for logger := range l.loggers {
-		logger.log(log)
+	for name, logger := range l.loggers {
+		logger.log(name, log)
 	}
 }
 
@@ -139,7 +139,7 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 
 // setup logger
 func SetLogger(name string, filter filter.Filter, formatter formatter.Formatter, handlers []handler.Handler) (err error) {
-	if filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
+	if name == "" || filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
 	}
 	loggersMutex.Lock()
@@ -170,7 +170,7 @@ func logBase(logLevel LogLevel, message string) {
 		log.fileName = fileNamw
 		log.lineNum = lineNum
 	}
-	defaultLogger.log(log)
+	defaultLogger.log("", log)
 }
 
 func Emerg(format string, args ...interface{}) {
@@ -231,13 +231,13 @@ type logger struct {
 	mutex     *sync.RWMutex
 }
 
-func (l *Logger) log(log LogEvent) {
+func (l *Logger) log(name string, log LogEvent) {
 	l.mutex.RLock()
 	defer l.mutex.RUnlock()
 	if ok := logger.filter.Evalute(log); !ok {
 		return
 	}
-	logString := logger.formatter.format(log)
+	logString := logger.formatter.format(name, log)
 	for handler := range handlers {
 		handler.Write(logString)
 	}

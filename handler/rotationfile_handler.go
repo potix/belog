@@ -157,6 +157,7 @@ func (a *RotationFileHandler) rotateLogFile(now time.Time) {
 }
 
 func (a *RotationFileHandler) getRotatedLogFilePath() {
+
 	rotatedLogFilePath := filepath.Join(c.LogDirPath, rotatedLogFileName)
 }
 
@@ -171,5 +172,5 @@ func NewRotationFileHandler() (handler Handler) {
 }
 
 func init() {
-	RegisterHandler("RotationFile", NewRotationFileHandler)
+	RegisterHandler("RotationFileHandler", NewRotationFileHandler)
 }
