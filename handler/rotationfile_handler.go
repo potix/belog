@@ -9,140 +9,179 @@ import (
 
 const (
 	defaultAsyncFlushInterval = 1
+	defaultBufferSize         = 8192
 )
 
 type RotationFileHandler struct {
-	LogFileName        string
-	LogDirPath         string
-	MaxAge             int
-	MaxSize            int
-	DailyRotation      bool
-	AsyncFlushInterval int
-	bufferManager      buffer.BufferManager
+	logFileName        string
+	logDirPath         string
+	maxAge             int
+	maxSize            int
+	async              bool
+	asyncFlushInterval int
 	scheduledFlush     bool
 	lastModifiedTime   time.Time
 	logDileSize        int64
 	logFile            *os.File
+	logBuffer          *logBuffer
 	mutex              *sync.Mutex
 }
 
-func (a *RotationFileHandler) SetBufferManager(bufferManager buffer.BufferManager) (err error) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.bufferManager = bufferManager
-	return nil
+func (h *RotationFileHandler) Open() {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.openLogFile()
 }
 
-func (a *RotationFileHandler) Open() {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	a.openLogFile()
-}
-
-func (a *RotationFileHandler) Write(loggerName string, logEvent *belog.LogEvent, formattedLog string) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	if bufferManager != nil {
-		lastLogEvent, formattedLog, needFlush := bufferManager.AddBuffer(logEvent, formattedLog)
-		if needFlush {
-			a.writeLog(lastLogEvent.Time(), formattedLog)
-		}
-		// timer flush
-		if !scheduledFlush {
-			a.scheduledFlush = true
-			go a.timerFlush()
+func (h *RotationFileHandler) Write(loggerName string, logEvent *belog.LogEvent, formattedLog string) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	if h.async {
+		lastLogEvent, formattedLog, full := h.logBuffer.AddBuffer(logEvent, formattedLog)
+		if full {
+			h.writeLog(lastLogEvent.Time(), formattedLog)
+		} else {
+			// timer flush
+			if !scheduledFlush {
+				h.scheduledFlush = true
+				go h.logBufferFlushTimer()
+			}
 		}
 	} else {
-		a.writeLog(logEvent.Time(), formattedLog)
+		h.writeLog(logEvent.Time(), formattedLog)
 	}
 }
 
-func (a *RotationFileHandler) Flush() {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	if bufferManager != nil {
-		lastLogEvent, logBuffer, needFlush := bufferManager.DrainBuffer()
-		if needFlush {
-			a.writeLog(lastLogEvent.Time(), logBuffer)
-		}
+func (h *RotationFileHandler) Flush() {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	if h.async {
+		h.logBufferFlush()
 	}
-	if a.logFile != nil {
-		a.logFile.Sync()
+	if h.logFile != nil {
+		h.logFile.Sync()
 	}
 }
 
-func (a *RotationFileHandler) Close() {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	if a.logFile == nil {
+func (h *RotationFileHandler) Close() {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	if h.logFile == nil {
 		return
 	}
-	a.logFile.Close()
-	a.logFile = nil
-	a.lastModifiedTime = time.Time{}
-	a.logFileSize = 0
+	h.flushBase()
+	h.logFile.Close()
+	h.logFile = nil
+	h.lastModifiedTime = time.Time{}
+	h.logFileSize = 0
 }
 
-func (a *RotationFileHandler) timerFlush() {
-	<-time.After(time.Second)
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	lastLogEvent, logBuffer, needFlush := bufferManager.DrainBuffer()
-	if needFlush {
-		a.writeLog(lastLogEvent.Time(), logBuffer)
+func (h *RotationFileHandler) SetLogFileName(logFileName string) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.logFileName = logFileName
+}
+
+func (h *RotationFileHandler) SetLogDirPath(logDirPath string) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.logDirPath = logDirPath
+}
+
+func (h *RotationFileHandler) SetMaxAge(maxAge int) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.maxAge = maxAge
+}
+
+func (h *RotationFileHandler) SetMaxSize(maxSize int) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.maxSize = maxSize
+}
+
+func (h *RotationFileHandler) SetAsync(async bool) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	if h.async == async {
+		return
 	}
-	a.scheduledFlush = false
+	if h.async == ture && async == false {
+		h.logBufferFlush()
+	}
+	h.async = async
 }
 
-func (a *RotationFileHandler) writeLog(logTime time.Time, logBuffer string) {
-	a.openLogFile()
-	a.rotateLogFile(lastLogTime)
-	if a.logFile == nil {
+func (h *RotationFileHandler) SetAsyncFlushInterval(asyncFlushInterval int) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.asyncFlushInterval = asyncFlushInterval
+}
+
+func (h *RotationFileHandler) logBufferFlushTimer() {
+	<-time.After(time.Second)
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	h.logBufferFlush()
+	h.scheduledFlush = false
+}
+
+func (h *RotationFileHandler) logBufferFlush() {
+	lastLogEvent, logBuffer, remain := h.logBuffer.DrainBuffer()
+	if remain {
+		h.writeLog(lastLogEvent.Time(), logBuffer)
+	}
+}
+
+func (h *RotationFileHandler) writeLog(logTime time.Time, logBuffer string) {
+	h.openLogFile()
+	h.rotateLogFile(lastLogTime)
+	if h.logFile == nil {
 		// statistics
 		return
 	}
-	wlen, err := a.logFile.writeString(logBuffer)
+	wlen, err := h.logFile.writeString(logBuffer)
 	if err != nil {
 		// sstatistics
 		return
 	}
-	a.lastModifiedTime = lastLogTime
-	a.logFileSize += int64(wlen)
+	h.lastModifiedTime = lastLogTime
+	h.logFileSize += int64(wlen)
 }
 
-func (a *RotationFileHandler) openLogFile() {
-	if a.logFile != nil {
+func (h *RotationFileHandler) openLogFile() {
+	if h.logFile != nil {
 		return
 	}
 	// make directories
-	err := os.MkdirAll(a.LogDirPath, 0755)
+	err := os.MkdirAll(h.LogDirPath, 0755)
 	if err != nil {
 		// statistics
 		return
 	}
 	// open log file
-	logFilePath := filepath.Join(a.LogDirPath, a.LogFileName)
+	logFilePath := filepath.Join(h.LogDirPath, h.LogFileName)
 	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		// statisticsa
 		return
 	}
-	a.logFile = file
+	h.logFile = file
 	// get stat info
-	fileInfo, _ := a.logFile.Stat()
-	a.lastModifiedTime = fileInfo.ModTime()
-	a.logFileSize = fileInfo.Size()
+	fileInfo, _ := h.logFile.Stat()
+	h.lastModifiedTime = fileInfo.ModTime()
+	h.logFileSize = fileInfo.Size()
 }
 
-func (a *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
-	if (a.lastModifiedTime.Year() == lastLogTime.Year() &&
-		a.lastModifiedTime.YearDay() == lastLogTime.YearDay()) &&
-		(a.MaxSize <= 0 || a.logFileSize < a.MaxSize) {
+func (h *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
+	if (h.lastModifiedTime.Year() == lastLogTime.Year() &&
+		h.lastModifiedTime.YearDay() == lastLogTime.YearDay()) &&
+		(h.MaxSize <= 0 || h.logFileSize < h.MaxSize) {
 		return
 	}
-	logFilePath := filepath.Join(a.LogDirPath, a.LogFileName)
+	logFilePath := filepath.Join(h.LogDirPath, h.LogFileName)
 	// get rotated file path
-	rotatedLogDirPath, rotatedLogFilePath := a.getRotatedLogFilePath()
+	rotatedLogDirPath, rotatedLogFilePath := h.getRotatedLogFilePath()
 	err := os.MkdirAll(rotatedLogDirPath, 0755)
 	if err != nil {
 		// statistics
@@ -160,20 +199,20 @@ func (a *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
 		// statistics
 		return
 	}
-	a.logFile.Close()
-	a.logFile = file
-	a.lastModifiedTime = lastLogTime
-	a.logFileSize = 0
-	a.deleteOldLog()
+	h.logFile.Close()
+	h.logFile = file
+	h.lastModifiedTime = lastLogTime
+	h.logFileSize = 0
+	h.deleteOldLogFiles()
 }
 
-func (a *RotationFileHandler) getRotatedLogFilePath() {
+func (h *RotationFileHandler) getRotatedLogFilePath() {
 	idx := 1
-	date := a.lastModifiedTime.strftime("%Y-%m-%d")
+	date := h.lastModifiedTime.strftime("%Y-%m-%d")
 	for {
-		rotatedLogFileName := fmt.Sprintf("%v.%v.%v", a.LogFileName, date, idx)
-		rotatedLogDirPath = filepath.Join(a.LogDirPath, date)
-		rotatedLogFilePath = filepath.Join(rotatedLogDirPath, rotatedLogFileName)
+		rotatedLogFileName := fmt.Sprintf("%v.%v.%v", h.LogFileName, date, idx)
+		rotatedLogDirPath := filepath.Join(h.LogDirPath, date)
+		rotatedLogFilePath := filepath.Join(rotatedLogDirPath, rotatedLogFileName)
 		_, err := os.Stat(rotatedLogFilePath)
 		if err != nil {
 			return rotatedLogDirPath, rotatedLogFilePath
@@ -182,19 +221,75 @@ func (a *RotationFileHandler) getRotatedLogFilePath() {
 	}
 }
 
-func (a *RotationFileHandler) deleteOldLog() {
-	oldDate = a.lastModifiedTime.AddDate(0, -1*(a.MaxAge+1), 0)
-	oldRotatedLogDirPath = filepath.Join(a.LogDirPath, oldDate)
-	os.RemoveAll(oldRotatedLogDirPath)
+func (h *RotationFileHandler) deleteOldLogFiles() {
+	files, err := ioutil.ReadDir(h.LogDirPath)
+	if err != nil {
+		return
+	}
+	oldTime := h.lastModifiedTime.AddDate(0, 0, -1*h.MaxAge)
+	_, offset := oldTime.Zone()
+	oldAdjustTime := time.Unix((oldTime.Unix()/86400)*86400-int(offset), 0)
+	const dirLayout = "2006-01-02"
+	for _, file := range files {
+		if !file.IsDir() {
+			continue
+		}
+		dirTime, err := time.Parse(dirLayout, file.Name())
+		if err != nil {
+			// statistics
+			continue
+		}
+		if dirTime.Before(oldAdjustTime) {
+			os.RemoveAll(filepath.Join(h.LogDirPath, file.Name()))
+		}
+	}
 }
 
 func NewRotationFileHandler() (handler Handler) {
 	return &rotationFile{
 		LogFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
-		LogDirPath:         "/var/log/",
+		LogDirPath:         fmt.Sprintf("/var/log/%v", filepath.Base(os.Args[0])),
 		MaxGen:             7,
-		DailyRotation:      true,
+		Async:              false,
 		AsyncFlushInterval: defaultAsyncFlushInterval,
+		logBuffer:          newLogBuffer(),
+	}
+}
+
+type logBuffer struct {
+	Threshold    int
+	buffer       *bytes.Buffer
+	lastLogEvent *belog.LogEvent
+}
+
+func (b *logBuffer) addBuffer(logEvent *belog.LogEvent, formattedLog string) (lastLogEvent *belog.LogEvent, logBuffer string, full bool) {
+	b.buffer.WriteString(formattedLog)
+	b.lastLogEvent = logEvent
+	if b.buffer.Len() > c.Threshold {
+		buffer := b.buffer.String()
+		b.buffer.Truncate(0)
+		lastLogEvent := b.lastLogEvent
+		b.lastLogEvent = nil
+		return lastLogEvent, stringBuffer, true
+	}
+	return nil, "", false
+}
+
+func (b *logBuffer) drainBuffer() (lastLogEvent *belog.LogEvent, logBuffer string, remain bool) {
+	if b.buffer.Len() > 0 {
+		logBuffer := b.buffer.String()
+		b.buffer.Truncate(0)
+		lastLogEvent := b.lastLogEvent
+		b.lastLogEvent = nil
+		return lastLogEvent, stringBuffer, true
+	}
+	return nil, "", false
+}
+
+func newLogBuffer() (logBuffer *logBuffer) {
+	return &StandardBuffer{
+		logBuffer: bytes.NewBuffer(make([]byte, 0, defaultBufferSize)),
+		Threshold: defaultBufferSize,
 	}
 }
 

@@ -126,7 +126,7 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 	return loggerHandler
 }
 
-// setup logger
+// set logger
 func SetLogger(name string, filter filter.Filter, formatter formatter.Formatter, handlers []handler.Handler) (err error) {
 	if name == "" || filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
@@ -275,6 +275,7 @@ func init() {
 		filter:    filter.NewLogLevelFilter(),
 		formatter: formatter.NewStandardFormatter(),
 		handlers:  []Handler{h},
+		mutex:     new(sync.RWMutex),
 	}
 	h.Open()
 }
