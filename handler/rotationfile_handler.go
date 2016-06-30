@@ -19,11 +19,11 @@ type RotationFileHandler struct {
 	maxSize            int
 	async              bool
 	asyncFlushInterval int
-	scheduledFlush     bool
-	lastModifiedTime   time.Time
-	logDileSize        int64
-	logFile            *os.File
 	logBuffer          *logBuffer
+	scheduledFlush     bool
+	logFileSize        int64
+	lastModifiedTime   time.Time
+	logFile            *os.File
 	mutex              *sync.Mutex
 }
 
@@ -247,12 +247,13 @@ func (h *RotationFileHandler) deleteOldLogFiles() {
 
 func NewRotationFileHandler() (handler Handler) {
 	return &rotationFile{
-		LogFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
-		LogDirPath:         fmt.Sprintf("/var/log/%v", filepath.Base(os.Args[0])),
-		MaxGen:             7,
-		Async:              false,
-		AsyncFlushInterval: defaultAsyncFlushInterval,
+		logFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
+		logDirPath:         fmt.Sprintf("/var/log/%v", filepath.Base(os.Args[0])),
+		maxGen:             7,
+		async:              false,
+		asyncFlushInterval: defaultAsyncFlushInterval,
 		logBuffer:          newLogBuffer(),
+		mutex:              new(sync.Mutex),
 	}
 }
 
