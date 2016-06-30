@@ -246,7 +246,7 @@ func (h *RotationFileHandler) deleteOldLogFiles() {
 }
 
 func NewRotationFileHandler() (handler Handler) {
-	return &rotationFile{
+	return &RotationFileHandler{
 		logFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
 		logDirPath:         fmt.Sprintf("/var/log/%v", filepath.Base(os.Args[0])),
 		maxGen:             7,
@@ -288,7 +288,7 @@ func (b *logBuffer) drainBuffer() (lastLogEvent *belog.LogEvent, logBuffer strin
 }
 
 func newLogBuffer() (logBuffer *logBuffer) {
-	return &StandardBuffer{
+	return &logdBuffer{
 		logBuffer: bytes.NewBuffer(make([]byte, 0, defaultBufferSize)),
 		Threshold: defaultBufferSize,
 	}

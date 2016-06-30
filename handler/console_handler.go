@@ -52,12 +52,12 @@ func (h *ConsoleHandler) SetOutputType(outputType OutputType) {
 }
 
 func NewConsoleHandler() (handler Handler) {
-	return &rotationFile{
+	return &ConsoleHandler{
 		outputType: OutputTypeStdout,
 		mutex:      new(sync.RWMutex),
 	}
 }
 
 func init() {
-	RegisterHandler("RotationFileHandler", NewRotationFileHandler)
+	RegisterHandler("ConsoleHandler", NewConsoleHandler)
 }
