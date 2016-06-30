@@ -21,17 +21,6 @@ const (
 )
 
 var (
-	LogLevelMap = map[LogLevel]string{
-		LogLevelEmerg:  "EMERG",
-		LogLevelAlert:  "ALERT",
-		LogLevelCrit:   "CRIT",
-		LogLevelError:  "ERROR",
-		LogLevelWarn:   "WARN",
-		LogLevelNotice: "NOTICE",
-		LogLevelInfo:   "INFO",
-		LogLevelDebug:  "DEBUG",
-		LogLevelTrace:  "TRACE",
-	}
 	pid           int
 	defaultLogger *logger
 	loggers       map[string]*logger
@@ -231,15 +220,15 @@ type logger struct {
 	mutex     *sync.RWMutex
 }
 
-func (l *Logger) log(name string, log LogEvent) {
+func (l *Logger) log(loggerName string, logEvent LogEvent) {
 	l.mutex.RLock()
 	defer l.mutex.RUnlock()
-	if ok := logger.filter.Evalute(log); !ok {
+	if ok := logger.filter.Evalute(loggerName, logEvent); !ok {
 		return
 	}
-	logString := logger.formatter.format(name, log)
+	formattedLog := logger.formatter.format(loggerName, logEvent)
 	for handler := range handlers {
-		handler.Write(logString)
+		handler.Write(loggerName, logEvent, formattedLog)
 	}
 }
 

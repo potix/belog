@@ -12,14 +12,14 @@ var (
 type Handler interface {
 	SetBufferManager(bufferManager buffer.BufferManager) (err error)
 	Open()
-	Write(logString string)
+	Write(loggerName string, logEvent *belog.LogEvent, formattedLog string)
 	Flush()
 	Close()
 }
 
 type BufferManager interface {
-	AddBuffer(logString string) (stringBuffer string, needFlush bool)
-	DrainBuffer() (stringBuffer string, needFlush bool)
+	AddBuffer(logEvent *belog.LogEvent, formattedLog string) (lastLogEvent *belog.LogEvent, logBuffer string, full bool)
+	DrainBuffer() (lastLogEvent *belog.LogEvent, logbuffer string, remain bool)
 }
 
 func GetHandler(name string) (Handler Handler, err error) {

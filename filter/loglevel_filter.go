@@ -4,7 +4,7 @@ type LogLevelFilter struct {
 	LogLevel belog.LogLevel
 }
 
-func (f *LogLevelFilter) Evaluate(logEvent belog.LogEvent) (ok bool) {
+func (f *LogLevelFilter) Evaluate(loggerName string, logEvent belog.LogEvent) (ok bool) {
 	if logEvent.LogLevel() > f.LogLevel {
 		return false
 	}

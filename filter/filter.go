@@ -9,7 +9,7 @@ var (
 )
 
 type Filter interface {
-	Evaluate(log belog.Log) bool
+	Evaluate(loggerName string, log belog.Log) bool
 }
 
 func GetFilter(name string) (filter Filter, err error) {
