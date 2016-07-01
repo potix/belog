@@ -123,7 +123,7 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 		if !ok {
 			loggerHandler.loggers[name] = defaultLogger
 		} else {
-			loggerHandler.loggers[name] = loggers[name]
+			loggerHandler.loggers[name] = logger
 		}
 	}
 	return loggerHandler

@@ -1,6 +1,7 @@
 package belog
 
 import (
+	"path/filepath"
 	"strings"
 	"sync"
 )
@@ -36,8 +37,8 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 		"%(programCounter)", string(log.Pc()),
 		"%(fileName)", log.FileName(),
 		"%(shortFileName)", filepath.Base(log.FileName()),
-		"%(lineNum)", string(log.LineNum),
-		"%(message)", message)
+		"%(lineNum)", string(log.LineNum()),
+		"%(message)", log.Message())
 	return replacer.Replace(f.format)
 }
 
