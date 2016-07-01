@@ -63,7 +63,6 @@ func LoadConfig(configFilePath string) (err error) {
 }
 
 func setupLoggers(config *config) (err error) {
-	// XXXX
 	tempLoggers := make(map[string]*logger)
 	for name, loggerConfig := range config.Loggers {
 		// create filter
@@ -110,7 +109,7 @@ func setupLoggers(config *config) (err error) {
 	return nil
 }
 
-func setupInstance(instance interface{}, configStruct *configStruct) {
+func setupInstance(instance interface{}, configStruct *configStruct) (err error) {
 	for _, structSetter := range configStruct.StructSetters {
 		instanceValue := reflect.ValueOf(instance)
 		methodValue := instanceValue.MethodByName(strings.TrimSpace(structSetter.SetterName))
@@ -125,15 +124,93 @@ func setupInstance(instance interface{}, configStruct *configStruct) {
 		methodArgs := make([]Value, 0, len(instanceArgs))
 		for i, setterParam := range structSetter.SetterParams {
 			argType := methodType.In(i)
+			var reflectValue reflect.Value
 			switch argType.Kind() {
-			case int:
-				// XXXXX:
-				val, err := strconv(strings.Trimspace(setterParam), 10, 0)
+			case reflect.Bool:
+				val, err := strconv.ParseBool(setterParam)
 				if err != nil {
-					r
+					return err
 				}
-				methodArgs = append(methodArgs, reflect.ValueOf(val))
+				reflectValue = reflect.ValueOf(val)
+			case reflect.Int:
+				val, err := strconv.ParseInt(setterParam, 10, 0)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(int(val))
+			case reflect.Int8:
+				val, err := strconv.ParseInt(setterParam, 10, 8)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(int8(val))
+			case reflect.Int16:
+				val, err := strconv.ParseInt(setterParam, 10, 16)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(int16(val))
+			case reflect.Int32:
+				val, err := strconv.ParseInt(setterParam, 10, 32)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(int32(val))
+			case reflect.Int64:
+				val, err := strconv.ParseInt(setterParam, 10, 64)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(val)
+			case reflect.Uint:
+				val, err := strconv.ParseUint(setterParam, 10, 0)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(uint(val))
+			case reflect.Uint8:
+				val, err := strconv.ParseUint(setterParam, 10, 8)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(uint8(val))
+			case reflect.Uint16:
+				val, err := strconv.ParseUint(setterParam, 10, 16)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(uint16(val))
+			case reflect.Uint32:
+				val, err := strconv.ParseUint(setterParam, 10, 32)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(uint32(val))
+			case reflect.Uint64:
+				val, err := strconv.ParseUint(setterParam, 10, 64)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(val)
+			case reflect.Float32:
+				val, err := strconv.ParseFloat(setterParam, 32)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(float32(val))
+			case reflect.Float64:
+				val, err := strconv.ParseFloat(setterParam, 64)
+				if err != nil {
+					return err
+				}
+				reflectValue = reflect.ValueOf(val)
+			case reflect.String:
+				reflectValue = reflect.ValueOf(setterParam)
+			default:
+				return errors.Errorf("unsupported kind of setter paramter", argType.Kind())
+
 			}
+			methodArgs = append(methodArgs, reflectValue)
 		}
 		methodValue.Call(methodArgs)
 	}
