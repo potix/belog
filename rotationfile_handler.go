@@ -23,7 +23,9 @@ type RotationFileHandler struct {
 	maxSize            int64
 	async              bool
 	asyncFlushInterval int
-	logBuffer          *rotationFileLogBuffer
+	bufferSize         int
+	buffer             *bytes.Buffer
+	lastLogEvent       LogEvent
 	scheduledFlush     bool
 	logFileSize        int64
 	lastModifiedTime   time.Time
@@ -41,7 +43,7 @@ func (h *RotationFileHandler) Write(loggerName string, logEvent LogEvent, format
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	if h.async {
-		lastLogEvent, formattedLog, full := h.logBuffer.addBuffer(logEvent, formattedLog)
+		lastLogEvent, formattedLog, full := h.pushBuffer(logEvent, formattedLog)
 		if full {
 			h.writeLog(lastLogEvent.Time(), formattedLog)
 		} else {
@@ -124,10 +126,10 @@ func (h *RotationFileHandler) SetAsyncFlushInterval(asyncFlushInterval int) {
 	h.asyncFlushInterval = asyncFlushInterval
 }
 
-func (h *RotationFileHandler) SeaAsyncBufferSize(bufferSize int) {
+func (h *RotationFileHandler) SetBufferSize(bufferSize int) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
-	h.logBuffer.setBufferSize(bufferSize)
+	h.bufferSize = bufferSize
 }
 
 func (h *RotationFileHandler) logBufferFlushTimer() {
@@ -139,7 +141,7 @@ func (h *RotationFileHandler) logBufferFlushTimer() {
 }
 
 func (h *RotationFileHandler) logBufferFlush() {
-	lastLogEvent, logBuffer, remain := h.logBuffer.drainBuffer()
+	lastLogEvent, logBuffer, remain := h.popBuffer()
 	if remain {
 		h.writeLog(lastLogEvent.Time(), logBuffer)
 	}
@@ -254,6 +256,30 @@ func (h *RotationFileHandler) deleteOldLogFiles() {
 	}
 }
 
+func (h *RotationFileHandler) pushBuffer(logEvent LogEvent, formattedLog string) (lastLogEvent LogEvent, logBuffer string, full bool) {
+	h.buffer.WriteString(formattedLog)
+	h.lastLogEvent = logEvent
+	if h.buffer.Len() > h.bufferSize {
+		return h.popBufferBase()
+	}
+	return nil, "", false
+}
+
+func (h *RotationFileHandler) popBuffer() (lastLogEvent LogEvent, logBuffer string, remain bool) {
+	if h.buffer.Len() > 0 {
+		return h.popBufferBase()
+	}
+	return nil, "", false
+}
+
+func (h *RotationFileHandler) popBufferBase() (lastLogEvent LogEvent, logBuffer string, remain bool) {
+	logBuffer = h.buffer.String()
+	h.buffer.Truncate(0)
+	lastLogEvent = h.lastLogEvent
+	h.lastLogEvent = nil
+	return lastLogEvent, logBuffer, true
+}
+
 func NewRotationFileHandler() (handler Handler) {
 	return &RotationFileHandler{
 		logFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
@@ -261,56 +287,9 @@ func NewRotationFileHandler() (handler Handler) {
 		maxAge:             7,
 		async:              false,
 		asyncFlushInterval: rotationFileDefaultAsyncFlushInterval,
-		logBuffer:          newRotationFileLogBuffer(),
+		buffer:             bytes.NewBuffer(make([]byte, 0, rotationFileDefaultBufferSize)),
+		bufferSize:         rotationFileDefaultBufferSize,
 		mutex:              new(sync.Mutex),
-	}
-}
-
-type rotationFileLogBuffer struct {
-	bufferSize   int
-	buffer       *bytes.Buffer
-	lastLogEvent LogEvent
-	mutex        *sync.RWMutex
-}
-
-func (b *rotationFileLogBuffer) addBuffer(logEvent LogEvent, formattedLog string) (lastLogEvent LogEvent, logBuffer string, full bool) {
-	b.mutex.RLock()
-	defer b.mutex.RUnlock()
-	b.buffer.WriteString(formattedLog)
-	b.lastLogEvent = logEvent
-	if b.buffer.Len() > b.bufferSize {
-		logBuffer := b.buffer.String()
-		b.buffer.Truncate(0)
-		lastLogEvent := b.lastLogEvent
-		b.lastLogEvent = nil
-		return lastLogEvent, logBuffer, true
-	}
-	return nil, "", false
-}
-
-func (b *rotationFileLogBuffer) drainBuffer() (lastLogEvent LogEvent, logBuffer string, remain bool) {
-	b.mutex.RLock()
-	defer b.mutex.RUnlock()
-	if b.buffer.Len() > 0 {
-		logBuffer := b.buffer.String()
-		b.buffer.Truncate(0)
-		lastLogEvent := b.lastLogEvent
-		b.lastLogEvent = nil
-		return lastLogEvent, logBuffer, true
-	}
-	return nil, "", false
-}
-
-func (b *rotationFileLogBuffer) setBufferSize(bufferSize int) {
-	b.mutex.Lock()
-	defer b.mutex.Unlock()
-	b.bufferSize = bufferSize
-}
-
-func newRotationFileLogBuffer() (logBuffer *rotationFileLogBuffer) {
-	return &rotationFileLogBuffer{
-		buffer:     bytes.NewBuffer(make([]byte, 0, rotationFileDefaultBufferSize)),
-		bufferSize: rotationFileDefaultBufferSize,
 	}
 }
 
