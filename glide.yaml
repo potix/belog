@@ -1,0 +1,5 @@
+package:  github.com/potix/belog
+import:
+- package: github.com/BurntSushi/toml
+- package: github.com/pkg/errors
+
