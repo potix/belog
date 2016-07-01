@@ -1,4 +1,4 @@
-package Handler
+package belog
 
 import (
 	"github.com/pkg/errors"
@@ -10,7 +10,7 @@ var (
 
 type Handler interface {
 	Open()
-	Write(loggerName string, logEvent *belog.LogEvent, formattedLog string)
+	Write(loggerName string, logEvent LogEvent, formattedLog string)
 	Flush()
 	Close()
 }

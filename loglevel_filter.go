@@ -1,11 +1,15 @@
 package filter
 
+import (
+	"sync"
+)
+
 type LogLevelFilter struct {
-	logLevel belog.LogLevel
+	logLevel LogLevel
 	mutex    *sync.RWMutex
 }
 
-func (f *LogLevelFilter) Evaluate(loggerName string, logEvent belog.LogEvent) (ok bool) {
+func (f *LogLevelFilter) Evaluate(loggerName string, logEvent LogEvent) (ok bool) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
 	if logEvent.LogLevel() > f.LogLevel {
@@ -14,7 +18,7 @@ func (f *LogLevelFilter) Evaluate(loggerName string, logEvent belog.LogEvent) (o
 	return true
 }
 
-func (f *LogLevelFilter) SetLogLevel(logLevel belog.LogLevel) {
+func (f *LogLevelFilter) SetLogLevel(logLevel LogLevel) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	f.logLevel = logLevel
@@ -22,7 +26,7 @@ func (f *LogLevelFilter) SetLogLevel(logLevel belog.LogLevel) {
 
 func NewLogLevelFilter() (filter Filter) {
 	return &LogLevelFilter{
-		LogLevel: belog.LogLevelInfo,
+		LogLevel: LogLevelInfo,
 		mutex:    new(sync.RWMutex),
 	}
 }

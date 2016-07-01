@@ -20,7 +20,7 @@ type ConsoleHandler struct {
 func (h *ConsoleHandler) Open() {
 }
 
-func (h *ConsoleHandler) Write(loggerName string, logEvent *belog.LogEvent, formattedLog string) {
+func (h *ConsoleHandler) Write(loggerName string, logEvent LogEvent, formattedLog string) {
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
 	switch h.outputType {

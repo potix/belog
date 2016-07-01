@@ -1,6 +1,7 @@
 package formatter
 
 import (
+	"strings"
 	"sync"
 )
 
@@ -23,7 +24,7 @@ type StandardFormatter struct {
 	mutex          *sync.RWMutex
 }
 
-func (f *StandardFormatter) Format(loggerName string, log *belog.LogEvent) (formattedLog string) {
+func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLog string) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
 	replacer := strings.NewReplacer(
@@ -52,7 +53,7 @@ func (f *StandardFormatter) SetFormat(format string) {
 	f.format = format
 }
 
-func NewStandardFormatter() (formatter belog.Formatter) {
+func NewStandardFormatter() (formatter Formatter) {
 	return &StandardFormatter{
 		dateTimeLayout: "2006-01-02 15:04:05",
 		format:         "%(dateTime) [%(logLevel)] (%(pid)) %(loggerName) %(fileName) %(lineNum) %(message)",

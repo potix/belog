@@ -1,7 +1,6 @@
 package belog
 
 import (
-	"log"
 	"sync"
 	"time"
 )
@@ -101,7 +100,7 @@ func (l *LoggerHandler) ChangeFormatter(name string, formatter Formatter) (err e
 	return logger.changeFormatter(filter)
 }
 
-func (l *LoggerHandler) ChangeHandlers(name string, handlers []handlers) (err error) {
+func (l *LoggerHandler) ChangeHandlers(name string, handlers []Handler) (err error) {
 	logger, ok := l.loggers[name]
 	if !ok {
 		return errors.Errorf("not found name")
@@ -127,7 +126,7 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 }
 
 // set logger
-func SetLogger(name string, filter filter.Filter, formatter formatter.Formatter, handlers []handler.Handler) (err error) {
+func SetLogger(name string, filter Filter, formatter Formatter, handlers []handler.Handler) (err error) {
 	if name == "" || filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
 	}

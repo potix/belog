@@ -25,7 +25,7 @@ type LogEvent interface {
 	Message() string
 }
 
-type log struct {
+type logInfo struct {
 	pid      int
 	time     time.Time
 	logLevel LogLevel
@@ -35,34 +35,34 @@ type log struct {
 	message  string
 }
 
-func (l *log) Pid() (pid int) {
+func (l *logInfo) Pid() (pid int) {
 	return l.pid
 }
 
-func (l *log) Time() (time time.Time) {
+func (l *logInfo) Time() (time time.Time) {
 	return l.time
 }
 
-func (l *log) LogLevel() (logLevel LogLevel) {
+func (l *logInfo) LogLevel() (logLevel LogLevel) {
 	return l.logLevel
 }
 
-func (l *log) LogLevelString() (logLevelString string) {
+func (l *logInfo) LogLevelString() (logLevelString string) {
 	return logLevelMap[l.logLevel]
 }
 
-func (l *log) Pc() (pc uintptr) {
+func (l *logInfo) Pc() (pc uintptr) {
 	return l.pc
 }
 
-func (l *log) FileName() (fileName string) {
+func (l *logInfo) FileName() (fileName string) {
 	return l.fileName
 }
 
-func (l *log) LineNum() (lineNo int) {
+func (l *logInfo) LineNum() (lineNo int) {
 	return l.lineNum
 }
 
-func (l *log) Message() (message string) {
+func (l *logInfo) Message() (message string) {
 	return l.message
 }

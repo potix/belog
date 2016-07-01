@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"sync"
@@ -8,8 +9,8 @@ import (
 )
 
 const (
-	defaultAsyncFlushInterval = 1
-	defaultBufferSize         = 8192
+	rotationFileDefaultAsyncFlushInterval = 1
+	rotationFileDefaultBufferSize         = 8192
 )
 
 type RotationFileHandler struct {
@@ -19,7 +20,7 @@ type RotationFileHandler struct {
 	maxSize            int
 	async              bool
 	asyncFlushInterval int
-	logBuffer          *logBuffer
+	logBuffer          *rotationFileLogBuffer
 	scheduledFlush     bool
 	logFileSize        int64
 	lastModifiedTime   time.Time
@@ -33,7 +34,7 @@ func (h *RotationFileHandler) Open() {
 	h.openLogFile()
 }
 
-func (h *RotationFileHandler) Write(loggerName string, logEvent *belog.LogEvent, formattedLog string) {
+func (h *RotationFileHandler) Write(loggerName string, logEvent LogEvent, formattedLog string) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	if h.async {
@@ -251,46 +252,46 @@ func NewRotationFileHandler() (handler Handler) {
 		logDirPath:         fmt.Sprintf("/var/log/%v", filepath.Base(os.Args[0])),
 		maxGen:             7,
 		async:              false,
-		asyncFlushInterval: defaultAsyncFlushInterval,
+		asyncFlushInterval: rotationFileDefaultAsyncFlushInterval,
 		logBuffer:          newLogBuffer(),
 		mutex:              new(sync.Mutex),
 	}
 }
 
-type logBuffer struct {
+type rotationFileLogBuffer struct {
 	Threshold    int
 	buffer       *bytes.Buffer
-	lastLogEvent *belog.LogEvent
+	lastLogEvent *LogEvent
 }
 
-func (b *logBuffer) addBuffer(logEvent *belog.LogEvent, formattedLog string) (lastLogEvent *belog.LogEvent, logBuffer string, full bool) {
+func (b *rotationFileLogBuffer) addBuffer(logEvent *LogEvent, formattedLog string) (lastLogEvent *LogEvent, logBuffer string, full bool) {
 	b.buffer.WriteString(formattedLog)
 	b.lastLogEvent = logEvent
 	if b.buffer.Len() > c.Threshold {
-		buffer := b.buffer.String()
+		logBuffer := b.buffer.String()
 		b.buffer.Truncate(0)
 		lastLogEvent := b.lastLogEvent
 		b.lastLogEvent = nil
-		return lastLogEvent, stringBuffer, true
+		return lastLogEvent, logBuffer, true
 	}
 	return nil, "", false
 }
 
-func (b *logBuffer) drainBuffer() (lastLogEvent *belog.LogEvent, logBuffer string, remain bool) {
+func (b *rotationFileLogBuffer) drainBuffer() (lastLogEvent *LogEvent, logBuffer string, remain bool) {
 	if b.buffer.Len() > 0 {
 		logBuffer := b.buffer.String()
 		b.buffer.Truncate(0)
 		lastLogEvent := b.lastLogEvent
 		b.lastLogEvent = nil
-		return lastLogEvent, stringBuffer, true
+		return lastLogEvent, logBuffer, true
 	}
 	return nil, "", false
 }
 
-func newLogBuffer() (logBuffer *logBuffer) {
-	return &logdBuffer{
-		logBuffer: bytes.NewBuffer(make([]byte, 0, defaultBufferSize)),
-		Threshold: defaultBufferSize,
+func newRotationFileLogBuffer() (rotationFileLogBuffer *rotationFileLogBuffer) {
+	return &rotationFileLogBuffer{
+		buffer:    bytes.NewBuffer(make([]byte, 0, rotationFileDefaultBufferSize)),
+		Threshold: rotationFileDefaultBufferSize,
 	}
 }
 

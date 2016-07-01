@@ -1,4 +1,4 @@
-package filter
+package belog
 
 import (
 	"github.com/pkg/errors"
@@ -9,7 +9,7 @@ var (
 )
 
 type Filter interface {
-	Evaluate(loggerName string, log belog.Log) bool
+	Evaluate(loggerName string, log LogEvent) bool
 }
 
 func GetFilter(name string) (filter Filter, err error) {

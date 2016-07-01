@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"reflect"
+	"strings"
 )
 
 type config struct {

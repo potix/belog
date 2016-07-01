@@ -1,4 +1,4 @@
-package formatter
+package belog
 
 import (
 	"github.com/pkg/errors"
@@ -9,7 +9,7 @@ var (
 )
 
 type Formatter interface {
-	Format(loggerName string, log belog.Log) (logString string)
+	Format(loggerName string, log LogEvent) (logString string)
 }
 
 func GetFormatter(name string) (formatter Formatter, err error) {
