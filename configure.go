@@ -11,24 +11,19 @@ type config struct {
 }
 
 type configLogger struct {
-	Filter    *configFilter
-	Formatter *configFormatter
-	Handlers  []*configHandler
+	Filter    *configStruct
+	Formatter *configStruct
+	Handlers  []*configStruct
 }
 
-type configFilter struct {
-	FilterName   string
-	FilterParams []string
+type configStruct struct {
+	StructName    string
+	StructSetters []*configStructSetter
 }
 
-type configHandler struct {
-	FormatterName   string
-	FormatterParams []string
-}
-
-type configHandler struct {
-	HandlerName   string
-	HandlerParams []string
+type configStructSetter struct {
+	SetterName   string
+	SetterParams []string
 }
 
 func LoadConfig(configFilePath string) (err error) {
@@ -69,43 +64,77 @@ func LoadConfig(configFilePath string) (err error) {
 
 func setupLoggers(config *config) (err error) {
 	// XXXX
+	tempLoggers := make(map[string]*logger)
 	for name, loggerConfig := range config.Loggers {
-		filter, err := filter.GetFilter(loggerConfig.Filter.FilterName)
+		// create filter
+		filter, err := filter.GetFilter(loggerConfig.Filter.StructName)
 		if err != nil {
 			return errors.Errorf("not found filter (%v)", loggerConfig.Filter.FilterName)
 		}
-		// XXX reflect
-		for _, filterParam := range loggerConfig.Filter.FilterParams {
-			filterMethod, filterArgs := parseParam(filterParam)
-			filter.filterMethod(filterArgs)
+		// setup filter
+		if err := setupInstance(filter, loggerConfig.Filter); err != nil {
+			return err
 		}
-
-		formatter, err := formatter.GetFormatter(loggerConfig.Formatter.FormatterName)
+		// create formatter
+		formatter, err := formatter.GetFormatter(loggerConfig.Formatter.StructName)
 		if err != nil {
 			return errors.Errorf("not found formatter (%v)", loggerConfig.Formatter.FormatterName)
 		}
-		// XXX reflect
-		for _, formatterParam := range loggerConfig.Formatter.FormatterParams {
-			formatterMethod, formatterArgs := parseParam(formatterParam)
-			formatter.formtterMethod(formatterArgs)
-		}
-
-		handlers := make([]*handler.Handler, 0)
-		for _, handlerConfig := range loggerConfig.handlers {
-			handler, err := formatter.GetHAndler(loggerConfig.Handler.HandlerName)
-			if err != nil {
-				return errors.Errorf("not found formatter (%v)", loggerConfig.Handler.HandlerName)
-			}
-			// XXX reflect
-			for _, handlerParam := range loggerConfig.Handler.HandlerParams {
-				handlerMethod, handlerArgs := parseParam(handlerParam)
-				handler.handlerMethod(handlerArgs)
-			}
-			handlers = append(handler, handler)
-		}
-		if err := SetLogger(name, filter, formatter, handlers); err != nil {
+		// setup formatter
+		if err := setupInstance(formatter, loggerConfig.Formatter); err != nil {
 			return err
 		}
+		handlers := make([]*handler.Handler, 0)
+		for _, configStruct := range loggerConfig.Handlers {
+			// create handler
+			handler, err := formatter.GetHandler(configStruct.StructName)
+			if err != nil {
+				return errors.Errorf("not found handler (%v)", configStruct.StructName)
+			}
+			// setup formatter
+			if err := setupInstance(handler, configStruct); err != nil {
+				return err
+			}
+			handlers = append(handlers, handler)
+		}
+		newLogger := &logger{
+			filter:    filter,
+			formatter: formatter,
+			handlers:  handlers,
+		}
+		temploggers[name] = newLogger
+	}
+	for name, newLogger := range tempLoggers {
+		SetLogger(name, newLoger.filter, newLogger.formatter, newLogger.handlers)
 	}
 	return nil
+}
+
+func setupInstance(instance interface{}, configStruct *configStruct) {
+	for _, structSetter := range configStruct.StructSetters {
+		instanceValue := reflect.ValueOf(instance)
+		methodValue := instanceValue.MethodByName(strings.TrimSpace(structSetter.SetterName))
+		if !methodValue.IsValid() {
+			return errors.Errorf("unexpected Method (%v)", loggerConfig.Formatter.FormatterName)
+		}
+		methodType := methodValue.Type()
+		argsNum := methodType.NumIn()
+		if len(structSetter.SetterParams) != argsNum {
+			return errors.Errorf("parameter count mismatch")
+		}
+		methodArgs := make([]Value, 0, len(instanceArgs))
+		for i, setterParam := range structSetter.SetterParams {
+			argType := methodType.In(i)
+			switch argType.Kind() {
+			case int:
+				// XXXXX:
+				val, err := strconv(strings.Trimspace(setterParam), 10, 0)
+				if err != nil {
+					r
+				}
+				methodArgs = append(methodArgs, reflect.ValueOf(val))
+			}
+		}
+		methodValue.Call(methodArgs)
+	}
 }
