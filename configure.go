@@ -119,7 +119,11 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 		methodType := methodValue.Type()
 		argsNum := methodType.NumIn()
 		if len(structSetter.SetterParams) != argsNum {
-			return errors.Errorf("parameter count mismatch")
+			return errors.Errorf("parameter count mismatch of setter method")
+		}
+		outNum := typeOfFunc.NumOut()
+		if outNum > 1 {
+			return errors.Errorf("return value is too many of setter method")
 		}
 		methodArgs := make([]Value, 0, len(instanceArgs))
 		for i, setterParam := range structSetter.SetterParams {
@@ -208,10 +212,22 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 				reflectValue = reflect.ValueOf(setterParam)
 			default:
 				return errors.Errorf("unsupported kind of setter paramter", argType.Kind())
-
 			}
 			methodArgs = append(methodArgs, reflectValue)
 		}
-		methodValue.Call(methodArgs)
+		outs := methodValue.Call(methodArgs)
+		if len(outs) == 1 {
+			out := outs[0]
+			if out.Kind() != reflect.Interface {
+				return errors.Errorf("return value of setter method is not interface of error")
+			}
+			outType := out.Type()
+			errorInterface := reflect.TypeOf((*error)(nil)).Elem()
+			if outType.Implements(errorInterface) {
+				return out.Interface().(error)
+			} else {
+				return errors.Errorf("return value of setter method is not interface of error")
+			}
+		}
 	}
 }
