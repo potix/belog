@@ -88,6 +88,12 @@ func (l *LoggerHandler) Trace(format string, args ...interface{}) {
 	l.logBase(LogLevelTrace, fmt.Sprintf(format, args...))
 }
 
+func (l *LoggerHandler) Flush() {
+	for _, logger := range l.loggers {
+		logger.flush()
+	}
+}
+
 func (l *LoggerHandler) ChangeFilter(name string, filter Filter) (err error) {
 	logger, ok := l.loggers[name]
 	if !ok {
@@ -202,6 +208,10 @@ func Trace(format string, args ...interface{}) {
 	logBase(LogLevelTrace, fmt.Sprintf(format, args...))
 }
 
+func Flush() {
+	defaultLogger.flush()
+}
+
 // change default logger filter
 func ChangeFilter(filter Filter) (err error) {
 	return defaultLogger.changeFilter(filter)
@@ -233,6 +243,14 @@ func (l *logger) log(loggerName string, logEvent LogEvent) {
 	formattedLog := l.formatter.Format(loggerName, logEvent)
 	for _, handler := range l.handlers {
 		handler.Write(loggerName, logEvent, formattedLog)
+	}
+}
+
+func (l *logger) flush() {
+	l.mutex.RLock()
+	defer l.mutex.RUnlock()
+	for _, handler := range l.handlers {
+		handler.Flush()
 	}
 }
 
