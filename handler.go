@@ -24,5 +24,14 @@ func GetHandler(name string) (Handler Handler, err error) {
 }
 
 func RegisterHandler(name string, newFunc func() Handler) {
+	if handlers == nil {
+		handlers = make(map[string]func() Handler)
+	}
 	handlers[name] = newFunc
+}
+
+func init() {
+	if handlers == nil {
+		handlers = make(map[string]func() Handler)
+	}
 }

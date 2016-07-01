@@ -21,5 +21,14 @@ func GetFormatter(name string) (formatter Formatter, err error) {
 }
 
 func RegisterFormatter(name string, newFunc func() Formatter) {
+	if formatters == nil {
+		formatters = make(map[string]func() Formatter)
+	}
 	formatters[name] = newFunc
+}
+
+func init() {
+	if formatters == nil {
+		formatters = make(map[string]func() Formatter)
+	}
 }

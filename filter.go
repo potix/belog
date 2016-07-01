@@ -21,5 +21,14 @@ func GetFilter(name string) (filter Filter, err error) {
 }
 
 func RegisterFilter(name string, newFunc func() Filter) {
+	if filters == nil {
+		filters = make(map[string]func() Filter)
+	}
 	filters[name] = newFunc
+}
+
+func init() {
+	if filters == nil {
+		filters = make(map[string]func() Filter)
+	}
 }
