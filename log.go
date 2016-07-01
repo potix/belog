@@ -1,5 +1,9 @@
 package belog
 
+import (
+	"time"
+)
+
 var (
 	logLevelMap = map[LogLevel]string{
 		LogLevelEmerg:  "EMERG",

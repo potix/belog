@@ -183,14 +183,12 @@ func (h *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
 	logFilePath := filepath.Join(h.LogDirPath, h.LogFileName)
 	// get rotated file path
 	rotatedLogDirPath, rotatedLogFilePath := h.getRotatedLogFilePath()
-	err := os.MkdirAll(rotatedLogDirPath, 0755)
-	if err != nil {
+	if err := os.MkdirAll(rotatedLogDirPath, 0755); err != nil {
 		// statistics
 		return
 	}
 	// rename
-	err := os.Rename(logFilePath, rotatedLogFilePath)
-	if err != nil {
+	if err := os.Rename(logFilePath, rotatedLogFilePath); err != nil {
 		// statistics
 		return
 	}

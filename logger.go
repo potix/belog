@@ -1,6 +1,10 @@
 package belog
 
 import (
+	"fmt"
+	"github.com/pkg/errors"
+	"os"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -27,11 +31,11 @@ var (
 )
 
 type LoggerHandler struct {
-	loggers map[name]*logger
+	loggers map[string]*logger
 }
 
 func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
-	log := &log{
+	logInfo := &logInfo{
 		pid:      pid,
 		time:     time.Now(),
 		logLevel: logLevel,
@@ -39,12 +43,12 @@ func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
 	}
 	pc, fileName, lineNum, ok := runtime.Caller(2)
 	if ok {
-		log.pc = pc
-		log.fileName = fileNamw
-		log.lineNum = lineNum
+		logInfo.pc = pc
+		logInfo.fileName = fileName
+		logInfo.lineNum = lineNum
 	}
 	for name, logger := range l.loggers {
-		logger.log(name, log)
+		logger.log(name, logInfo)
 	}
 }
 
@@ -97,7 +101,7 @@ func (l *LoggerHandler) ChangeFormatter(name string, formatter Formatter) (err e
 	if !ok {
 		return errors.Errorf("not found name")
 	}
-	return logger.changeFormatter(filter)
+	return logger.changeFormatter(formatter)
 }
 
 func (l *LoggerHandler) ChangeHandlers(name string, handlers []Handler) (err error) {
@@ -112,9 +116,9 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 	loggersMutex.RLock()
 	defer loggersMutex.RUnlock()
 	loggerHandler := &LoggerHandler{
-		loggers: make(map[string]lLogger),
+		loggers: make(map[string]*logger),
 	}
-	for name := range names {
+	for _, name := range names {
 		logger, ok := loggers[name]
 		if !ok {
 			loggerHandler.loggers[name] = defaultLogger
@@ -126,7 +130,7 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 }
 
 // set logger
-func SetLogger(name string, filter Filter, formatter Formatter, handlers []handler.Handler) (err error) {
+func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handler) (err error) {
 	if name == "" || filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
 	}
@@ -137,16 +141,17 @@ func SetLogger(name string, filter Filter, formatter Formatter, handlers []handl
 	}
 	loggers[name] = &logger{
 		filter:    filter,
-		formatter: formater,
+		formatter: formatter,
 		handlers:  handlers,
 	}
-	for handler := range handlers {
+	for _, handler := range handlers {
 		handler.Open()
 	}
+	return nil
 }
 
 func logBase(logLevel LogLevel, message string) {
-	log := &log{
+	logInfo := &logInfo{
 		pid:      pid,
 		time:     time.Now(),
 		logLevel: logLevel,
@@ -154,11 +159,11 @@ func logBase(logLevel LogLevel, message string) {
 	}
 	pc, fileName, lineNum, ok := runtime.Caller(2)
 	if ok {
-		log.pc = pc
-		log.fileName = fileNamw
-		log.lineNum = lineNum
+		logInfo.pc = pc
+		logInfo.fileName = fileName
+		logInfo.lineNum = lineNum
 	}
-	defaultLogger.log("", log)
+	defaultLogger.log("", logInfo)
 }
 
 func Emerg(format string, args ...interface{}) {
@@ -219,60 +224,62 @@ type logger struct {
 	mutex     *sync.RWMutex
 }
 
-func (l *Logger) log(loggerName string, logEvent LogEvent) {
+func (l *logger) log(loggerName string, logEvent LogEvent) {
 	l.mutex.RLock()
 	defer l.mutex.RUnlock()
-	if ok := logger.filter.Evalute(loggerName, logEvent); !ok {
+	if ok := l.filter.Evaluate(loggerName, logEvent); !ok {
 		return
 	}
-	formattedLog := logger.formatter.format(loggerName, logEvent)
-	for handler := range handlers {
+	formattedLog := l.formatter.Format(loggerName, logEvent)
+	for _, handler := range l.handlers {
 		handler.Write(loggerName, logEvent, formattedLog)
 	}
 }
 
-func (l *Logger) changeFilter(filter Filter) (err error) {
+func (l *logger) changeFilter(filter Filter) (err error) {
 	if filter == nil {
 		return errors.Errorf("invalid argument")
 	}
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
 	l.filter = filter
+	return nil
 }
 
-func (l *Logger) changeFormatter(formatter Formatter) (err error) {
+func (l *logger) changeFormatter(formatter Formatter) (err error) {
 	if formatter == nil {
 		return errors.Errorf("invalid argument")
 	}
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
 	l.formatter = formatter
-
+	return nil
 }
 
-func (l *Logger) changeHandlers(handlers []Handler) (err error) {
+func (l *logger) changeHandlers(handlers []Handler) (err error) {
 	if handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
 	}
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
-	for handler := range l.handlers {
+	for _, handler := range l.handlers {
 		handler.Close()
 	}
 	l.handlers = handlers
-	for handler := range l.handlers {
+	for _, handler := range l.handlers {
 		handler.Open()
 	}
+	return nil
 }
 
 func init() {
 	pid = os.Getpid()
-	loggers = make(map[string]*Logger)
+	loggers = make(map[string]*logger)
 	loggersMutex = new(sync.RWMutex)
-	h := handler.NewConsoleHandler()
+	h := NewConsoleHandler()
 	defaultLogger = &logger{
-		filter:    filter.NewLogLevelFilter(),
-		formatter: formatter.NewStandardFormatter(),
+		filter:    NewLogLevelFilter(),
+		formatter: NewStandardFormatter(),
 		handlers:  []Handler{h},
 		mutex:     new(sync.RWMutex),
 	}

@@ -21,5 +21,5 @@ func GetFormatter(name string) (formatter Formatter, err error) {
 }
 
 func RegisterFormatter(name string, newFunc func() Formatter) {
-	formaters[name] = newFunc
+	formatters[name] = newFunc
 }

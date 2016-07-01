@@ -12,7 +12,7 @@ type LogLevelFilter struct {
 func (f *LogLevelFilter) Evaluate(loggerName string, logEvent LogEvent) (ok bool) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
-	if logEvent.LogLevel() > f.LogLevel {
+	if logEvent.LogLevel() > f.logLevel {
 		return false
 	}
 	return true
@@ -26,7 +26,7 @@ func (f *LogLevelFilter) SetLogLevel(logLevel LogLevel) {
 
 func NewLogLevelFilter() (filter Filter) {
 	return &LogLevelFilter{
-		LogLevel: LogLevelInfo,
+		logLevel: LogLevelInfo,
 		mutex:    new(sync.RWMutex),
 	}
 }

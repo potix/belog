@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-var OutputType int
+type OutputType int
 
 const (
 	OutputTypeStdout OutputType = 1
@@ -36,9 +36,9 @@ func (h *ConsoleHandler) Flush() {
 	defer h.mutex.RUnlock()
 	switch h.outputType {
 	case OutputTypeStdout:
-		os.Stdout.WriteString(formattedLog)
+		os.Stdout.Sync()
 	case OutputTypeStderr:
-		os.Stderr.WriteString(formattedLog)
+		os.Stderr.Sync()
 	}
 }
 

@@ -2,9 +2,13 @@ package belog
 
 import (
 	"encoding/json"
+	"github.com/BurntSushi/toml"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -29,8 +33,8 @@ type configStructSetter struct {
 }
 
 func LoadConfig(configFilePath string) (err error) {
-	config = new(config)
-	switch filePath.Ext(configFilePath) {
+	config := new(config)
+	switch filepath.Ext(configFilePath) {
 	case "tml":
 		fallthrough
 	case "toml":
@@ -65,30 +69,30 @@ func LoadConfig(configFilePath string) (err error) {
 }
 
 func setupLoggers(config *config) (err error) {
-	tempLoggers := make(map[string]*logger)
+	tmpLoggers := make(map[string]*logger)
 	for name, loggerConfig := range config.Loggers {
 		// create filter
-		filter, err := filter.GetFilter(loggerConfig.Filter.StructName)
+		filter, err := GetFilter(loggerConfig.Filter.StructName)
 		if err != nil {
-			return errors.Errorf("not found filter (%v)", loggerConfig.Filter.FilterName)
+			return errors.Errorf("not found filter (%v)", loggerConfig.Filter.StructName)
 		}
 		// setup filter
 		if err := setupInstance(filter, loggerConfig.Filter); err != nil {
 			return err
 		}
 		// create formatter
-		formatter, err := formatter.GetFormatter(loggerConfig.Formatter.StructName)
+		formatter, err := GetFormatter(loggerConfig.Formatter.StructName)
 		if err != nil {
-			return errors.Errorf("not found formatter (%v)", loggerConfig.Formatter.FormatterName)
+			return errors.Errorf("not found formatter (%v)", loggerConfig.Formatter.StructName)
 		}
 		// setup formatter
 		if err := setupInstance(formatter, loggerConfig.Formatter); err != nil {
 			return err
 		}
-		handlers := make([]*handler.Handler, 0)
+		handlers := make([]Handler, 0)
 		for _, configStruct := range loggerConfig.Handlers {
 			// create handler
-			handler, err := formatter.GetHandler(configStruct.StructName)
+			handler, err := GetHandler(configStruct.StructName)
 			if err != nil {
 				return errors.Errorf("not found handler (%v)", configStruct.StructName)
 			}
@@ -103,10 +107,10 @@ func setupLoggers(config *config) (err error) {
 			formatter: formatter,
 			handlers:  handlers,
 		}
-		temploggers[name] = newLogger
+		tmpLoggers[name] = newLogger
 	}
-	for name, newLogger := range tempLoggers {
-		SetLogger(name, newLoger.filter, newLogger.formatter, newLogger.handlers)
+	for name, newLogger := range tmpLoggers {
+		SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
 	}
 	return nil
 }
@@ -116,18 +120,18 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 		instanceValue := reflect.ValueOf(instance)
 		methodValue := instanceValue.MethodByName(strings.TrimSpace(structSetter.SetterName))
 		if !methodValue.IsValid() {
-			return errors.Errorf("unexpected Method (%v)", loggerConfig.Formatter.FormatterName)
+			return errors.Errorf("unexpected Method (%v)", structSetter.SetterName)
 		}
 		methodType := methodValue.Type()
 		argsNum := methodType.NumIn()
 		if len(structSetter.SetterParams) != argsNum {
 			return errors.Errorf("parameter count mismatch of setter method")
 		}
-		outNum := typeOfFunc.NumOut()
+		outNum := methodType.NumOut()
 		if outNum > 1 {
 			return errors.Errorf("return value is too many of setter method")
 		}
-		methodArgs := make([]Value, 0, len(instanceArgs))
+		methodArgs := make([]reflect.Value, 0, argsNum)
 		for i, setterParam := range structSetter.SetterParams {
 			argType := methodType.In(i)
 			var reflectValue reflect.Value
@@ -232,4 +236,5 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 			}
 		}
 	}
+	return nil
 }
