@@ -1,4 +1,4 @@
-package filter
+package belog
 
 import (
 	"sync"
