@@ -21,8 +21,8 @@ var (
 type LogEvent interface {
 	Pid() int
 	Time() time.Time
-	LogLevel() LogLevel
-	LogLevelString() string
+	LogLevel() string
+	LogLevelNum() LogLevel
 	Pc() uintptr
 	FileName() string
 	LineNum() int
@@ -47,12 +47,16 @@ func (l *logInfo) Time() (time time.Time) {
 	return l.time
 }
 
-func (l *logInfo) LogLevel() (logLevel LogLevel) {
-	return l.logLevel
+func (l *logInfo) LogLevel() (logLevel string) {
+	logLevel, ok := logLevelMap[l.logLevel]
+	if !ok {
+		return "UNKNOWN"
+	}
+	return logLevel
 }
 
-func (l *logInfo) LogLevelString() (logLevelString string) {
-	return logLevelMap[l.logLevel]
+func (l *logInfo) LogLevelNum() (logLevelNum LogLevel) {
+	return l.logLevel
 }
 
 func (l *logInfo) Pc() (pc uintptr) {

@@ -15,7 +15,7 @@
 
       [[Loggers.test1.Formatter.StructSetters]]
         SetterName = "SetLayout"
-        SetterParams = ["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter)  %(loggerName) %(fileName) %(lineNum) %(message)"]
+        SetterParams = ["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)"]
 
     [[Loggers.test1.Handlers]]
       StructName = "ConsoleHandler"

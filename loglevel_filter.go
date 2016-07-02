@@ -12,7 +12,7 @@ type LogLevelFilter struct {
 func (f *LogLevelFilter) Evaluate(loggerName string, logEvent LogEvent) (ok bool) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
-	if logEvent.LogLevel() > f.logLevel {
+	if logEvent.LogLevelNum() > f.logLevel {
 		return false
 	}
 	return true

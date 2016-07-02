@@ -149,6 +149,7 @@ func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handl
 		filter:    filter,
 		formatter: formatter,
 		handlers:  handlers,
+		mutex:     new(sync.RWMutex),
 	}
 	for _, handler := range handlers {
 		handler.Open()

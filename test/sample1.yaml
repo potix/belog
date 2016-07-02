@@ -14,8 +14,7 @@ loggers:
         - 2006-01-02 15:04:05 -0700 MST
       - settername: SetLayout
         setterparams:
-        - '%(dateTime) [%(logLevel)] (%(pid)) %(programCounter)  %(loggerName) %(fileName)
-          %(lineNum) %(message)'
+        - '%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)'
     handlers:
     - structname: ConsoleHandler
       structsetters:

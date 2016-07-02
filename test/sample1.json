@@ -19,7 +19,7 @@
 					},
 					{
 						"SetterName":"SetLayout",
-						"SetterParams":["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter)  %(loggerName) %(fileName) %(lineNum) %(message)"]
+						"SetterParams":["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)"]
 					}
 				]
 			},
