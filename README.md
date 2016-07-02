@@ -30,9 +30,9 @@ simple logger package
         filter := NewLogLevelFilter()
         filter.SetLogLevel(LogLevelTrace)
         err := ChangeFilter(filter)
-	if err != nil {
-		fmt.Println(err)
-	}
+        if err != nil {
+                fmt.Println(err)
+        }
 ```
 
 ## change formatter
@@ -44,9 +44,9 @@ simple logger package
         formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
         formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(shortFileName) %(lineNum) %(message)")
         err := ChangeFormatter(formatter) 
-	if err != nil {
-		fmt.Println(err)
-	}
+        if err != nil {
+               fmt.Println(err)
+        }
 ```
 
 ## change handler
@@ -65,9 +65,9 @@ simple logger package
         handlers := make([]Handler, 0)
         handlers = append(handlers, handler1)
         err := ChangeHandlers(handlers)
-	if err != nil {
-		fmt.Println(err)
-	}
+        if err != nil {
+                fmt.Println(err)
+        }
 ```
  
 ## setup loggers (no default logger)
