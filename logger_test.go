@@ -33,12 +33,18 @@ func TestDefaultLoggerChange(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	ChangeFilter(filter)
-	ChangeFormatter(formatter)
-	handlers := make([]Handler, 0)
+	if err := ChangeFilter(filter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	if err := ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
-	ChangeHandlers(handlers)
+	if err := ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
 	Emerg("test\n")
 	Alert("test\n")
 	Crit("test\n")
@@ -68,12 +74,18 @@ func TestDefaultLoggerAsync(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	ChangeFilter(filter)
-	ChangeFormatter(formatter)
-	handlers := make([]Handler, 0)
+	if err := ChangeFilter(filter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	if err := ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
-	ChangeHandlers(handlers)
+	if err := ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
 	Emerg("test\n")
 	Alert("test\n")
 	Crit("test\n")
@@ -118,12 +130,18 @@ func TestDefaultLoggerFlush(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	ChangeFilter(filter)
-	ChangeFormatter(formatter)
-	handlers := make([]Handler, 0)
+	if err := ChangeFilter(filter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	if err := ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
-	ChangeHandlers(handlers)
+	if err := ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
 	Emerg("test\n")
 	Alert("test\n")
 	Crit("test\n")
@@ -161,12 +179,18 @@ func TestDefaultLoggerContentTrace(t *testing.T) {
 	handler2.SetAsync(false)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	ChangeFilter(filter)
-	ChangeFormatter(formatter)
-	handlers := make([]Handler, 0)
+	if err := ChangeFilter(filter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	if err := ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
-	ChangeHandlers(handlers)
+	if err := ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
 	Emerg("test\n")
 	Alert("test\n")
 	Crit("test\n")
@@ -216,12 +240,18 @@ func TestDefaultLoggerContentNotice(t *testing.T) {
 	handler2.SetAsync(false)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	ChangeFilter(filter)
-	ChangeFormatter(formatter)
-	handlers := make([]Handler, 0)
+	if err := ChangeFilter(filter); err != nil {
+		r.Errorf("%+v", err)
+	}
+	if err := ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
-	ChangeHandlers(handlers)
+	if err := ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
 	Emerg("test\n")
 	Alert("test\n")
 	Crit("test\n")
@@ -268,7 +298,7 @@ func TestSetLoggerGetLooger(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	handlers := make([]Handler, 0)
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
 	if err := SetLogger("logger1", filter, formatter, handlers); err != nil {
@@ -307,7 +337,7 @@ func TestChangeLogger(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	handlers := make([]Handler, 0)
+	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
 	SetLogger("logger1", filter, formatter, handlers)
@@ -334,7 +364,7 @@ func TestChangeLogger(t *testing.T) {
 	handler2.SetAsync(false)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
-	handlers = make([]Handler, 0)
+	handlers = make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
 	if err := logger.ChangeHandlers("logger1", handlers); err != nil {

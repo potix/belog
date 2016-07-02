@@ -8,11 +8,12 @@ var (
 	formatters map[string]func() Formatter
 )
 
+//Formatter is interface of formatter
 type Formatter interface {
 	Format(loggerName string, log LogEvent) (logString string)
 }
 
-func GetFormatter(name string) (formatter Formatter, err error) {
+func getFormatter(name string) (formatter Formatter, err error) {
 	newFunc, ok := formatters[name]
 	if !ok {
 		return nil, errors.Errorf("not found formatter (%v)", name)
@@ -20,6 +21,7 @@ func GetFormatter(name string) (formatter Formatter, err error) {
 	return newFunc(), nil
 }
 
+//RegisterFormatter is register formatter
 func RegisterFormatter(name string, newFunc func() Formatter) {
 	if formatters == nil {
 		formatters = make(map[string]func() Formatter)

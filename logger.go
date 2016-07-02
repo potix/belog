@@ -9,18 +9,28 @@ import (
 	"time"
 )
 
+//LogLevel is log level
 type LogLevel int
 
 const (
-	LogLevelEmerg  LogLevel = 1
-	LogLevelAlert           = 2
-	LogLevelCrit            = 3
-	LogLevelError           = 4
-	LogLevelWarn            = 5
-	LogLevelNotice          = 6
-	LogLevelInfo            = 7
-	LogLevelDebug           = 8
-	LogLevelTrace           = 9
+	//LogLevelEmerg is log level of emergency
+	LogLevelEmerg LogLevel = 1
+	//LogLevelAlert is log level of alert
+	LogLevelAlert = 2
+	//LogLevelCrit is log level of critical
+	LogLevelCrit = 3
+	//LogLevelError is log level of error
+	LogLevelError = 4
+	//LogLevelWarn is log level of warning
+	LogLevelWarn = 5
+	//LogLevelNotice is log level of notice
+	LogLevelNotice = 6
+	//LogLevelInfo is log level of info
+	LogLevelInfo = 7
+	//LogLevelDebug is log level of debug
+	LogLevelDebug = 8
+	//LogLevelTrace is log level of trace
+	LogLevelTrace = 9
 )
 
 var (
@@ -30,6 +40,7 @@ var (
 	loggersMutex  *sync.RWMutex
 )
 
+//LoggerHandler is logger handler
 type LoggerHandler struct {
 	loggers map[string]*logger
 }
@@ -52,48 +63,59 @@ func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
 	}
 }
 
+//Emerg is output log of emergency level
 func (l *LoggerHandler) Emerg(format string, args ...interface{}) {
 	l.logBase(LogLevelEmerg, fmt.Sprintf(format, args...))
 }
 
+//Alert is output log of alert level
 func (l *LoggerHandler) Alert(format string, args ...interface{}) {
 	l.logBase(LogLevelAlert, fmt.Sprintf(format, args...))
 }
 
+//Crit is output log of critical level
 func (l *LoggerHandler) Crit(format string, args ...interface{}) {
 	l.logBase(LogLevelCrit, fmt.Sprintf(format, args...))
 }
 
+//Error is output log of error level
 func (l *LoggerHandler) Error(format string, args ...interface{}) {
 	l.logBase(LogLevelError, fmt.Sprintf(format, args...))
 }
 
+//Warn is output log of warn level
 func (l *LoggerHandler) Warn(format string, args ...interface{}) {
 	l.logBase(LogLevelWarn, fmt.Sprintf(format, args...))
 }
 
+//Notice is output log of notice level
 func (l *LoggerHandler) Notice(format string, args ...interface{}) {
 	l.logBase(LogLevelNotice, fmt.Sprintf(format, args...))
 }
 
+//Info is output log of info level
 func (l *LoggerHandler) Info(format string, args ...interface{}) {
 	l.logBase(LogLevelInfo, fmt.Sprintf(format, args...))
 }
 
+//Debug is output log of debug level
 func (l *LoggerHandler) Debug(format string, args ...interface{}) {
 	l.logBase(LogLevelDebug, fmt.Sprintf(format, args...))
 }
 
+//Trace is output log of trace level
 func (l *LoggerHandler) Trace(format string, args ...interface{}) {
 	l.logBase(LogLevelTrace, fmt.Sprintf(format, args...))
 }
 
+//Flush is flush
 func (l *LoggerHandler) Flush() {
 	for _, logger := range l.loggers {
 		logger.flush()
 	}
 }
 
+//ChangeFilter is change fileter
 func (l *LoggerHandler) ChangeFilter(name string, filter Filter) (err error) {
 	logger, ok := l.loggers[name]
 	if !ok {
@@ -102,6 +124,7 @@ func (l *LoggerHandler) ChangeFilter(name string, filter Filter) (err error) {
 	return logger.changeFilter(filter)
 }
 
+//ChangeFormatter is change formatter
 func (l *LoggerHandler) ChangeFormatter(name string, formatter Formatter) (err error) {
 	logger, ok := l.loggers[name]
 	if !ok {
@@ -110,6 +133,7 @@ func (l *LoggerHandler) ChangeFormatter(name string, formatter Formatter) (err e
 	return logger.changeFormatter(formatter)
 }
 
+//ChangeHandlers is change handlers
 func (l *LoggerHandler) ChangeHandlers(name string, handlers []Handler) (err error) {
 	logger, ok := l.loggers[name]
 	if !ok {
@@ -118,6 +142,7 @@ func (l *LoggerHandler) ChangeHandlers(name string, handlers []Handler) (err err
 	return logger.changeHandlers(handlers)
 }
 
+//GetLogger is get logger
 func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 	loggersMutex.RLock()
 	defer loggersMutex.RUnlock()
@@ -135,7 +160,7 @@ func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
 	return loggerHandler
 }
 
-// set logger
+//SetLogger is set logger
 func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handler) (err error) {
 	if name == "" || filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
@@ -173,57 +198,67 @@ func logBase(logLevel LogLevel, message string) {
 	defaultLogger.log("", logInfo)
 }
 
+//Emerg is output log of emergency level by default logger
 func Emerg(format string, args ...interface{}) {
 	logBase(LogLevelEmerg, fmt.Sprintf(format, args...))
 }
 
+//Alert is output log of alert level by default logger
 func Alert(format string, args ...interface{}) {
 	logBase(LogLevelAlert, fmt.Sprintf(format, args...))
 }
 
+//Crit is output log of critical level by default logger
 func Crit(format string, args ...interface{}) {
 	logBase(LogLevelCrit, fmt.Sprintf(format, args...))
 }
 
+//Error is output log of error level by default logger
 func Error(format string, args ...interface{}) {
 	logBase(LogLevelError, fmt.Sprintf(format, args...))
 }
 
+//Warn is output log of warning level by default logger
 func Warn(format string, args ...interface{}) {
 	logBase(LogLevelWarn, fmt.Sprintf(format, args...))
 }
 
+//Notice is output log of notice level by default logger
 func Notice(format string, args ...interface{}) {
 	logBase(LogLevelNotice, fmt.Sprintf(format, args...))
 }
 
+//Info is output log of info level by default logger
 func Info(format string, args ...interface{}) {
 	logBase(LogLevelInfo, fmt.Sprintf(format, args...))
 }
 
+//Debug is output log of debug level by default logger
 func Debug(format string, args ...interface{}) {
 	logBase(LogLevelDebug, fmt.Sprintf(format, args...))
 }
 
+//Trace is output log of trace level by default logger
 func Trace(format string, args ...interface{}) {
 	logBase(LogLevelTrace, fmt.Sprintf(format, args...))
 }
 
+//Flush is output log of flush level by default logger
 func Flush() {
 	defaultLogger.flush()
 }
 
-// change default logger filter
+//ChangeFilter is change filter of default logger
 func ChangeFilter(filter Filter) (err error) {
 	return defaultLogger.changeFilter(filter)
 }
 
-// change default logger formatter
+//ChangeFormatter is change formatter of default logger
 func ChangeFormatter(formatter Formatter) (err error) {
 	return defaultLogger.changeFormatter(formatter)
 }
 
-// change default logger handler
+//ChangeHandlers is change handler of default logger
 func ChangeHandlers(handlers []Handler) (err error) {
 	return defaultLogger.changeHandlers(handlers)
 }

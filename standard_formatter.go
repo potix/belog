@@ -7,25 +7,15 @@ import (
 	"sync"
 )
 
-//
-// %(dateTime)
-// %(logLevel)
-// %(logLevelNum)
-// %(pid)
-// %(loggerName)
-// %(programCounter)
-// %(fileName)
-// %(shortFileName)
-// %(lineNum)
-// %(message)
-//
-
+//StandardFormatter is standard formatter
+//this formatter is replace particular tags.
 type StandardFormatter struct {
 	dateTimeLayout string
 	layout         string
 	mutex          *sync.RWMutex
 }
 
+//Format is format log event
 func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLog string) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
@@ -43,18 +33,32 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 	return replacer.Replace(f.layout)
 }
 
+//SetDateTimeLayout is set layout of date and time. See Time.Format.
 func (f *StandardFormatter) SetDateTimeLayout(dateTimeLayout string) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	f.dateTimeLayout = dateTimeLayout
 }
 
+//SetLayout is set layout.
+//usable tags is follow:
+//   %(dateTime)       : date adn time
+//   %(logLevel)       : log level
+//   %(logLevelNum)    : log level number
+//   %(pid)            : process id
+//   %(loggerName)     : loggername
+//   %(programCounter) : program counter
+//   %(fileName)       : filename (full path)
+//   %(shortFileName)  : short file name (basename only)
+//   %(lineNum)        : line number
+//   %(message)        : message
 func (f *StandardFormatter) SetLayout(layout string) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	f.layout = layout
 }
 
+//NewStandardFormatter is create StandardFormatter
 func NewStandardFormatter() (standardFormatter *StandardFormatter) {
 	return &StandardFormatter{
 		dateTimeLayout: "2006-01-02 15:04:05",

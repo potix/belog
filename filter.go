@@ -8,11 +8,12 @@ var (
 	filters map[string]func() Filter
 )
 
+//Filter is interface of fileter
 type Filter interface {
 	Evaluate(loggerName string, log LogEvent) bool
 }
 
-func GetFilter(name string) (filter Filter, err error) {
+func getFilter(name string) (filter Filter, err error) {
 	newFunc, ok := filters[name]
 	if !ok {
 		return nil, errors.Errorf("not found filter (%v)", name)
@@ -20,6 +21,7 @@ func GetFilter(name string) (filter Filter, err error) {
 	return newFunc(), nil
 }
 
+//RegisterFilter is register filter
 func RegisterFilter(name string, newFunc func() Filter) {
 	if filters == nil {
 		filters = make(map[string]func() Filter)

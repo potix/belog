@@ -32,6 +32,7 @@ type configStructSetter struct {
 	SetterParams []string
 }
 
+//LoadConfig is load configration file
 func LoadConfig(configFilePath string) (err error) {
 	configLoggers := new(configLoggers)
 	ext := filepath.Ext(configFilePath)
@@ -75,32 +76,32 @@ func setupLoggers(configLoggers *configLoggers) (err error) {
 	tmpLoggers := make(map[string]*logger)
 	for name, loggerConfig := range configLoggers.Loggers {
 		// create filter
-		filter, err := GetFilter(loggerConfig.Filter.StructName)
+		filter, err := getFilter(loggerConfig.Filter.StructName)
 		if err != nil {
 			return errors.Errorf("not found filter (%v)", loggerConfig.Filter.StructName)
 		}
 		// setup filter
-		if err := setupInstance(filter, loggerConfig.Filter); err != nil {
+		if err = setupInstance(filter, loggerConfig.Filter); err != nil {
 			return err
 		}
 		// create formatter
-		formatter, err := GetFormatter(loggerConfig.Formatter.StructName)
+		formatter, err := getFormatter(loggerConfig.Formatter.StructName)
 		if err != nil {
 			return errors.Errorf("not found formatter (%v)", loggerConfig.Formatter.StructName)
 		}
 		// setup formatter
-		if err := setupInstance(formatter, loggerConfig.Formatter); err != nil {
+		if err = setupInstance(formatter, loggerConfig.Formatter); err != nil {
 			return err
 		}
-		handlers := make([]Handler, 0)
+		handlers := make([]Handler, 0, 0)
 		for _, configStruct := range loggerConfig.Handlers {
 			// create handler
-			handler, err := GetHandler(configStruct.StructName)
+			handler, err := getHandler(configStruct.StructName)
 			if err != nil {
 				return errors.Errorf("not found handler (%v)", configStruct.StructName)
 			}
 			// setup formatter
-			if err := setupInstance(handler, configStruct); err != nil {
+			if err = setupInstance(handler, configStruct); err != nil {
 				return err
 			}
 			handlers = append(handlers, handler)
@@ -220,7 +221,7 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 			case reflect.String:
 				reflectValue = reflect.ValueOf(setterParam)
 			default:
-				return errors.Errorf("unsupported kind of setter paramter", argType.Kind())
+				return errors.Errorf("unsupported kind of setter paramter (%v)", argType.Kind())
 			}
 			methodArgs = append(methodArgs, reflectValue.Convert(argType))
 		}
@@ -234,9 +235,8 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 			errorInterface := reflect.TypeOf((*error)(nil)).Elem()
 			if outType.Implements(errorInterface) {
 				return out.Interface().(error)
-			} else {
-				return errors.Errorf("return value of setter method is not interface of error")
 			}
+			return errors.Errorf("return value of setter method is not interface of error")
 		}
 	}
 	return nil

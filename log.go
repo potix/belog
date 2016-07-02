@@ -18,6 +18,7 @@ var (
 	}
 )
 
+//LogEvent is interface of event of log
 type LogEvent interface {
 	Pid() int
 	Time() time.Time

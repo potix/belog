@@ -8,6 +8,7 @@ var (
 	handlers map[string]func() Handler
 )
 
+//Handler is interface of handler
 type Handler interface {
 	Open()
 	Write(loggerName string, logEvent LogEvent, formattedLog string)
@@ -15,7 +16,7 @@ type Handler interface {
 	Close()
 }
 
-func GetHandler(name string) (Handler Handler, err error) {
+func getHandler(name string) (Handler Handler, err error) {
 	newFunc, ok := handlers[name]
 	if !ok {
 		return nil, errors.Errorf("not found Handler (%v)", name)
@@ -23,6 +24,7 @@ func GetHandler(name string) (Handler Handler, err error) {
 	return newFunc(), nil
 }
 
+//RegisterHandler is register handler
 func RegisterHandler(name string, newFunc func() Handler) {
 	if handlers == nil {
 		handlers = make(map[string]func() Handler)

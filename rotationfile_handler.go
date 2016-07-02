@@ -16,6 +16,7 @@ const (
 	rotationFileDirLayout                 = "2006-01-02"
 )
 
+//RotationFileHandler is handler of file with rotation
 type RotationFileHandler struct {
 	logFileName        string
 	logDirPath         string
@@ -33,19 +34,21 @@ type RotationFileHandler struct {
 	mutex              *sync.Mutex
 }
 
+//Open is open file
 func (h *RotationFileHandler) Open() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.openLogFile()
 }
 
+//Write is write formatted log
 func (h *RotationFileHandler) Write(loggerName string, logEvent LogEvent, formattedLog string) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	if h.async {
-		lastLogEvent, formattedLog, full := h.pushBuffer(logEvent, formattedLog)
+		lastLogEvent, logBuffer, full := h.pushBuffer(logEvent, formattedLog)
 		if full {
-			h.writeLog(lastLogEvent.Time(), formattedLog)
+			h.writeLog(lastLogEvent.Time(), logBuffer)
 		} else {
 			// timer flush
 			if !h.scheduledFlush {
@@ -58,6 +61,7 @@ func (h *RotationFileHandler) Write(loggerName string, logEvent LogEvent, format
 	}
 }
 
+//Flush is flush buffer and sync
 func (h *RotationFileHandler) Flush() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
@@ -69,6 +73,7 @@ func (h *RotationFileHandler) Flush() {
 	}
 }
 
+//Close is close File
 func (h *RotationFileHandler) Close() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
@@ -84,30 +89,35 @@ func (h *RotationFileHandler) Close() {
 	h.logFileSize = 0
 }
 
+//SetLogFileName is set log file name
 func (h *RotationFileHandler) SetLogFileName(logFileName string) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.logFileName = logFileName
 }
 
+//SetLogDirPath is set log dir path
 func (h *RotationFileHandler) SetLogDirPath(logDirPath string) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.logDirPath = logDirPath
 }
 
+//SetMaxAge is set max age
 func (h *RotationFileHandler) SetMaxAge(maxAge int) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.maxAge = maxAge
 }
 
+//SetMaxSize is set max log file size. if wrote size over this size, file is rotated.
 func (h *RotationFileHandler) SetMaxSize(maxSize int64) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.maxSize = maxSize
 }
 
+//SetAsync is set async mode
 func (h *RotationFileHandler) SetAsync(async bool) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
@@ -120,12 +130,14 @@ func (h *RotationFileHandler) SetAsync(async bool) {
 	h.async = async
 }
 
+//SetAsyncFlushInterval is set flush timer interfal
 func (h *RotationFileHandler) SetAsyncFlushInterval(asyncFlushInterval int) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.asyncFlushInterval = asyncFlushInterval
 }
 
+//SetBufferSize is set buffer size. if buffer of async size over this size, write buffer to file.
 func (h *RotationFileHandler) SetBufferSize(bufferSize int) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
@@ -229,7 +241,7 @@ func (h *RotationFileHandler) getRotatedLogFilePath() (rotatedLogDirPath string,
 		if err != nil {
 			return rotatedLogDirPath, rotatedLogFilePath
 		}
-		idx += 1
+		idx++
 	}
 }
 
@@ -280,6 +292,7 @@ func (h *RotationFileHandler) popBufferBase() (lastLogEvent LogEvent, logBuffer 
 	return lastLogEvent, logBuffer, true
 }
 
+//NewRotationFileHandler is create RotationFileHandler
 func NewRotationFileHandler() (rotationFileHandler *RotationFileHandler) {
 	return &RotationFileHandler{
 		logFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
