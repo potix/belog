@@ -24,7 +24,7 @@ func (f *LogLevelFilter) SetLogLevel(logLevel LogLevel) {
 	f.logLevel = logLevel
 }
 
-func NewLogLevelFilter() (filter Filter) {
+func NewLogLevelFilter() (logLevelFilter *LogLevelFilter) {
 	return &LogLevelFilter{
 		logLevel: LogLevelInfo,
 		mutex:    new(sync.RWMutex),
@@ -32,5 +32,7 @@ func NewLogLevelFilter() (filter Filter) {
 }
 
 func init() {
-	RegisterFilter("LogLevelFilter", NewLogLevelFilter)
+	RegisterFilter("LogLevelFilter", func() (filter Filter) {
+		return NewLogLevelFilter()
+	})
 }

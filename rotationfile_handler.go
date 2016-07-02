@@ -280,7 +280,7 @@ func (h *RotationFileHandler) popBufferBase() (lastLogEvent LogEvent, logBuffer 
 	return lastLogEvent, logBuffer, true
 }
 
-func NewRotationFileHandler() (handler Handler) {
+func NewRotationFileHandler() (rotationFileHandler *RotationFileHandler) {
 	return &RotationFileHandler{
 		logFileName:        fmt.Sprintf("%v.log", filepath.Base(os.Args[0])),
 		logDirPath:         fmt.Sprintf("/var/log/%v", filepath.Base(os.Args[0])),
@@ -294,5 +294,7 @@ func NewRotationFileHandler() (handler Handler) {
 }
 
 func init() {
-	RegisterHandler("RotationFileHandler", NewRotationFileHandler)
+	RegisterHandler("RotationFileHandler", func() (handler Handler) {
+		return NewRotationFileHandler()
+	})
 }

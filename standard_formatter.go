@@ -55,7 +55,7 @@ func (f *StandardFormatter) SetLayout(layout string) {
 	f.layout = layout
 }
 
-func NewStandardFormatter() (formatter Formatter) {
+func NewStandardFormatter() (standardFormatter *StandardFormatter) {
 	return &StandardFormatter{
 		dateTimeLayout: "2006-01-02 15:04:05",
 		layout:         "%(dateTime) [%(logLevel)] (%(pid)) %(loggerName) %(fileName) %(lineNum) %(message)",
@@ -64,5 +64,7 @@ func NewStandardFormatter() (formatter Formatter) {
 }
 
 func init() {
-	RegisterFormatter("StandardFormatter", NewStandardFormatter)
+	RegisterFormatter("StandardFormatter", func() (formatter Formatter) {
+		return NewStandardFormatter()
+	})
 }

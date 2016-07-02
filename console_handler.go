@@ -51,7 +51,7 @@ func (h *ConsoleHandler) SetOutputType(outputType OutputType) {
 	h.outputType = outputType
 }
 
-func NewConsoleHandler() (handler Handler) {
+func NewConsoleHandler() (consoleHandler *ConsoleHandler) {
 	return &ConsoleHandler{
 		outputType: OutputTypeStdout,
 		mutex:      new(sync.RWMutex),
@@ -59,5 +59,7 @@ func NewConsoleHandler() (handler Handler) {
 }
 
 func init() {
-	RegisterHandler("ConsoleHandler", NewConsoleHandler)
+	RegisterHandler("ConsoleHandler", func() (handler Handler) {
+		return NewConsoleHandler()
+	})
 }
