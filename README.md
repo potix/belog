@@ -141,7 +141,7 @@ func init() {
 }
 ```
 
-## use logger 
+## use logger (no default logger)
 * get logger
   - can able to get mutiple logger
 
