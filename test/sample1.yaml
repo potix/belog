@@ -1,0 +1,59 @@
+loggers:
+  test1:
+    filter:
+      structname: LogLevelFilter
+      structsetters:
+      - settername: SetLogLevel
+        setterparams:
+        - "8"
+    formatter:
+      structname: StandardFormatter
+      structsetters:
+      - settername: SetDateTimeLayout
+        setterparams:
+        - 2006-01-02 15:04:05 -0700 MST
+      - settername: SetLayout
+        setterparams:
+        - '%(dateTime) [%(logLevel)] (%(pid)) %(programCounter)  %(loggerName) %(fileName)
+          %(lineNum) %(message)'
+    handlers:
+    - structname: ConsoleHandler
+      structsetters:
+      - settername: SetOutputType
+        setterparams:
+        - "2"
+    - structname: RotationFileHandler
+      structsetters:
+      - settername: SetLogFileName
+        setterparams:
+        - belog-test.log
+      - settername: SetLogDirPath
+        setterparams:
+        - /var/tmp/belog-test
+      - settername: SetMaxAge
+        setterparams:
+        - "3"
+      - settername: SetMaxSize
+        setterparams:
+        - "65535"
+      - settername: SetAsync
+        setterparams:
+        - "true"
+      - settername: SetAsyncFlushInterval
+        setterparams:
+        - "2"
+      - settername: SetBufferSize
+        setterparams:
+        - "1024"
+  test2:
+    filter:
+      structname: LogLevelFilter
+      structsetters: []
+    formatter:
+      structname: StandardFormatter
+      structsetters: []
+    handlers:
+    - structname: ConsoleHandler
+      structsetters: []
+    - structname: RotationFileHandler
+      structsetters: []

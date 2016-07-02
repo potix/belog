@@ -1,0 +1,67 @@
+[Loggers]
+  [Loggers.test1]
+    [Loggers.test1.Filter]
+      StructName = "LogLevelFilter"
+
+      [[Loggers.test1.Filter.StructSetters]]
+        SetterName = "SetLogLevel"
+        SetterParams = ["8"]
+    [Loggers.test1.Formatter]
+      StructName = "StandardFormatter"
+
+      [[Loggers.test1.Formatter.StructSetters]]
+        SetterName = "SetDateTimeLayout"
+        SetterParams = ["2006-01-02 15:04:05 -0700 MST"]
+
+      [[Loggers.test1.Formatter.StructSetters]]
+        SetterName = "SetLayout"
+        SetterParams = ["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter)  %(loggerName) %(fileName) %(lineNum) %(message)"]
+
+    [[Loggers.test1.Handlers]]
+      StructName = "ConsoleHandler"
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetOutputType"
+        SetterParams = ["2"]
+
+    [[Loggers.test1.Handlers]]
+      StructName = "RotationFileHandler"
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetLogFileName"
+        SetterParams = ["belog-test.log"]
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetLogDirPath"
+        SetterParams = ["/var/tmp/belog-test"]
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetMaxAge"
+        SetterParams = ["3"]
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetMaxSize"
+        SetterParams = ["65535"]
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetAsync"
+        SetterParams = ["true"]
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetAsyncFlushInterval"
+        SetterParams = ["2"]
+
+      [[Loggers.test1.Handlers.StructSetters]]
+        SetterName = "SetBufferSize"
+        SetterParams = ["1024"]
+  [Loggers.test2]
+    [Loggers.test2.Filter]
+      StructName = "LogLevelFilter"
+    [Loggers.test2.Formatter]
+      StructName = "StandardFormatter"
+
+    [[Loggers.test2.Handlers]]
+      StructName = "ConsoleHandler"
+
+    [[Loggers.test2.Handlers]]
+      StructName = "RotationFileHandler"
