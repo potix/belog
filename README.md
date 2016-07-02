@@ -19,7 +19,15 @@ simple logger package
 * use default logger
 
 ```
-	belog.Info("test")
+        belog.Emerg("test\n")
+        belog.Alert("test\n")
+        belog.Crit("test\n")
+        belog.Error("test\n")
+        belog.Warn("test\n")
+        belog.Notice("test\n")
+        belog.Info("test\n")
+        belog.Debug("test\n")
+        belog.Trace("test\n")
 ```
 
 ## change filter
@@ -27,9 +35,9 @@ simple logger package
 * change filter of default logger
 
 ```
-        filter := NewLogLevelFilter()
-        filter.SetLogLevel(LogLevelTrace)
-        err := ChangeFilter(filter)
+        filter := belog.NewLogLevelFilter()
+        filter.SetLogLevel(belog.LogLevelTrace)
+        err := belog.ChangeFilter(filter)
         if err != nil {
                 fmt.Println(err)
         }
@@ -40,10 +48,10 @@ simple logger package
 * change formatter of default logger
 
 ```
-        formatter := NewStandardFormatter()
+        formatter := belog.NewStandardFormatter()
         formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
         formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(shortFileName) %(lineNum) %(message)")
-        err := ChangeFormatter(formatter) 
+        err := belog.ChangeFormatter(formatter) 
         if err != nil {
                fmt.Println(err)
         }
@@ -54,7 +62,7 @@ simple logger package
 * change filter of default logger
 
 ```
-        handler := NewRotationFileHandler()
+        handler := belog.NewRotationFileHandler()
         handler.SetLogFileName("belog-test.log")
         handler.SetLogDirPath("/var/tmp/belog-test")
         handler.SetMaxAge(2)
@@ -62,9 +70,9 @@ simple logger package
         handler.SetAsync(true)
         handler.SetAsyncFlushInterval(3)
         handler.SetBufferSize(2048)
-        handlers := make([]Handler, 0)
+        handlers := make([]belog.Handler, 0)
         handlers = append(handlers, handler1)
-        err := ChangeHandlers(handlers)
+        err := belog.ChangeHandlers(handlers)
         if err != nil {
                 fmt.Println(err)
         }
@@ -80,20 +88,20 @@ simple logger package
 
 ```
 func init() {
-        filter := NewLogLevelFilter()
-        filter.SetLogLevel(LogLevelTrace)
-        formatter := NewStandardFormatter()
+        filter := belog.NewLogLevelFilter()
+        filter.SetLogLevel(belog.LogLevelTrace)
+        formatter := belog.NewStandardFormatter()
         formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
         formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(shortFileName) %(lineNum) %(message)")
-        handler := NewRotationFileHandler()
+        handler := belog.NewRotationFileHandler()
         handler.SetLogFileName("belog-test.log")
         handler.SetLogDirPath("/var/tmp/belog-test")
         handler.SetMaxAge(10)
         handler.SetMaxSize(1024 * 1024 * 1024)
-        handlers := make([]Handler, 0)
+        handlers := make([]belog.Handler, 0)
         handlers = append(handlers, handler1)
         handlers = append(handlers, handler2)
-        SetLogger("mylogger1", filter, formatter, handlers)
+        belog.SetLogger("mylogger1", filter, formatter, handlers)
 }
 ```
 
@@ -127,7 +135,7 @@ loggers:
 
 ```
 func init() {
-        if err := LoadConfig("sample.yaml"); err != nil {
+        if err := belog.LoadConfig("sample.yaml"); err != nil {
                fmt.Println(err)
         }
 }
@@ -139,7 +147,7 @@ func init() {
 
 ```
 func init() {
-	logger := GetLogger("mylogger1", "mylogger2")
+	logger := belog.GetLogger("mylogger1", "mylogger2")
 	logger.Info("test")
 }
 ```
@@ -153,7 +161,8 @@ type Filter interface {
 }
 ```
 
-* create new function and register filter
+* create new function and register filter 
+  - name is struct name of custom filter
 
 ```
 func NewLogLevelFilter() (logLevelFilter *LogLevelFilter) {
@@ -164,7 +173,7 @@ func NewLogLevelFilter() (logLevelFilter *LogLevelFilter) {
 }
 
 func init() {
-        RegisterFilter("LogLevelFilter", func() (filter Filter) {
+        belog.RegisterFilter("LogLevelFilter", func() (filter belog.Filter) {
                 return NewLogLevelFilter()
         })
 }
@@ -180,6 +189,7 @@ type Formatter interface {
 ```
 
 * create new function and register formatter
+  - name is struct name of custom formatter
 
 ```
 func NewStandardFormatter() (standardFormatter *StandardFormatter) {
@@ -191,7 +201,7 @@ func NewStandardFormatter() (standardFormatter *StandardFormatter) {
 }
 
 func init() {
-        RegisterFormatter("StandardFormatter", func() (formatter Formatter) {
+        belog.RegisterFormatter("StandardFormatter", func() (formatter belog.Formatter) {
                 return NewStandardFormatter()
         })
 }
@@ -199,6 +209,7 @@ func init() {
 
 ## custom handler
 *  create struct have handler interface
+  - name is struct name of custom handler
 
 ```
 type Handler interface {
@@ -220,7 +231,7 @@ func NewConsoleHandler() (consoleHandler *ConsoleHandler) {
 }
 
 func init() {
-        RegisterHandler("ConsoleHandler", func() (handler Handler) {
+        belog.RegisterHandler("ConsoleHandler", func() (handler belog.Handler) {
                 return NewConsoleHandler()
         })
 }
