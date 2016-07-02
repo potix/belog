@@ -1,6 +1,6 @@
 # belog
 
-simple logger package
+logger package
 
 ## belog
 
@@ -14,6 +14,15 @@ simple logger package
                                               ---------
        |----------------- logger -----------------------|
 ```
+
+## includes
+* filter
+  - LogLevelFilter: filter by log level
+* formatter
+  - StandardFormatter: standard formatter
+* handler
+  - consoleHadnler: output to console
+  - RotationFileHandler: output to file and rotate file
 
 ## use default logger
 * use default logger
