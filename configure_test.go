@@ -67,5 +67,4 @@ func TestGetLogger(t *testing.T) {
 	if l2 != ll2 {
 		t.Errorf("l2 != ll2")
 	}
-	logger.Info("test\n")
 }
