@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type config struct {
+type configLoggers struct {
 	Loggers map[string]configLogger
 }
 
@@ -33,44 +33,47 @@ type configStructSetter struct {
 }
 
 func LoadConfig(configFilePath string) (err error) {
-	config := new(config)
-	switch filepath.Ext(configFilePath) {
-	case "tml":
+	configLoggers := new(configLoggers)
+	ext := filepath.Ext(configFilePath)
+	switch ext {
+	case ".tml":
 		fallthrough
-	case "toml":
-		_, err := toml.DecodeFile(configFilePath, config)
+	case ".toml":
+		_, err := toml.DecodeFile(configFilePath, configLoggers)
 		if err != nil {
 			return err
 		}
-	case "yml":
+	case ".yml":
 		fallthrough
-	case "yaml":
+	case ".yaml":
 		buf, err := ioutil.ReadFile(configFilePath)
 		if err != nil {
 			return err
 		}
-		err = yaml.Unmarshal(buf, config)
+		err = yaml.Unmarshal(buf, configLoggers)
 		if err != nil {
 			return err
 		}
-	case "json":
+	case ".jsn":
+		fallthrough
+	case ".json":
 		buf, err := ioutil.ReadFile(configFilePath)
 		if err != nil {
 			return err
 		}
-		err = json.Unmarshal(buf, config)
+		err = json.Unmarshal(buf, configLoggers)
 		if err != nil {
 			return err
 		}
 	default:
-		return errors.Errorf("unexpected file extension")
+		return errors.Errorf("unexpected file extension (%v)", ext)
 	}
-	return setupLoggers(config)
+	return setupLoggers(configLoggers)
 }
 
-func setupLoggers(config *config) (err error) {
+func setupLoggers(configLoggers *configLoggers) (err error) {
 	tmpLoggers := make(map[string]*logger)
-	for name, loggerConfig := range config.Loggers {
+	for name, loggerConfig := range configLoggers.Loggers {
 		// create filter
 		filter, err := GetFilter(loggerConfig.Filter.StructName)
 		if err != nil {
@@ -125,7 +128,7 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 		methodType := methodValue.Type()
 		argsNum := methodType.NumIn()
 		if len(structSetter.SetterParams) != argsNum {
-			return errors.Errorf("parameter count mismatch of setter method")
+			return errors.Errorf("parameter count mismatch of setter method (%v: exp %v != act %v)", structSetter.SetterName, argsNum, len(structSetter.SetterParams))
 		}
 		outNum := methodType.NumOut()
 		if outNum > 1 {
@@ -219,7 +222,7 @@ func setupInstance(instance interface{}, configStruct *configStruct) (err error)
 			default:
 				return errors.Errorf("unsupported kind of setter paramter", argType.Kind())
 			}
-			methodArgs = append(methodArgs, reflectValue)
+			methodArgs = append(methodArgs, reflectValue.Convert(argType))
 		}
 		outs := methodValue.Call(methodArgs)
 		if len(outs) == 1 {

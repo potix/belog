@@ -21,7 +21,7 @@ import (
 
 type StandardFormatter struct {
 	dateTimeLayout string
-	format         string
+	layout         string
 	mutex          *sync.RWMutex
 }
 
@@ -39,7 +39,7 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 		"%(shortFileName)", filepath.Base(log.FileName()),
 		"%(lineNum)", string(log.LineNum()),
 		"%(message)", log.Message())
-	return replacer.Replace(f.format)
+	return replacer.Replace(f.layout)
 }
 
 func (f *StandardFormatter) SetDateTimeLayout(dateTimeLayout string) {
@@ -48,16 +48,16 @@ func (f *StandardFormatter) SetDateTimeLayout(dateTimeLayout string) {
 	f.dateTimeLayout = dateTimeLayout
 }
 
-func (f *StandardFormatter) SetFormat(format string) {
+func (f *StandardFormatter) SetLayout(layout string) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
-	f.format = format
+	f.layout = layout
 }
 
 func NewStandardFormatter() (formatter Formatter) {
 	return &StandardFormatter{
 		dateTimeLayout: "2006-01-02 15:04:05",
-		format:         "%(dateTime) [%(logLevel)] (%(pid)) %(loggerName) %(fileName) %(lineNum) %(message)",
+		layout:         "%(dateTime) [%(logLevel)] (%(pid)) %(loggerName) %(fileName) %(lineNum) %(message)",
 		mutex:          new(sync.RWMutex),
 	}
 }

@@ -1,0 +1,90 @@
+{
+	"Loggers": {
+		"test1": {
+			"Filter": {
+				"StructName" : "LogLevelFilter",
+				"StructSetters" : [
+					{
+						"SetterName":"SetLogLevel",
+						"SetterParams": ["8"]
+					}
+				]
+			},
+			"Formatter": {
+				"StructName" : "StandardFormatter",
+				"StructSetters" : [
+					{
+						"SetterName":"SetDateTimeLayout",
+						"SetterParams":["2006-01-02 15:04:05 -0700 MST"]
+					},
+					{
+						"SetterName":"SetLayout",
+						"SetterParams":["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter)  %(loggerName) %(fileName) %(lineNum) %(message)"]
+					}
+				]
+			},
+			"Handlers" : [
+				{
+					"StructName" : "ConsoleHandler",
+					"StructSetters" : [
+						{
+							"SetterName":"SetOutputType",
+							"SetterParams":["2"]
+						}
+					]
+
+				},
+				{
+					"StructName" : "RotationFileHandler",
+					"StructSetters" : [
+						{
+							"SetterName":"SetLogFileName",
+							"SetterParams":["belog-test.log"]
+						},
+						{
+							"SetterName":"SetLogDirPath",
+							"SetterParams":["/var/tmp/belog-test"]
+						},
+						{
+							"SetterName":"SetMaxAge",
+							"SetterParams":["3"]
+						},
+						{
+							"SetterName":"SetMaxSize",
+							"SetterParams":["65535"]
+						},
+						{
+							"SetterName":"SetAsync",
+							"SetterParams":["true"]
+						},
+						{
+							"SetterName":"SetAsyncFlushInterval",
+							"SetterParams":["2"]
+						},
+						{
+							"SetterName":"SetBufferSize",
+							"SetterParams":["1024"]
+						}
+					]
+
+				}
+			]
+		},
+		"test2": {
+			"Filter": {
+				"StructName" : "LogLevelFilter"
+			},
+			"Formatter": {
+				"StructName" : "StandardFormatter"
+			},
+			"Handlers" : [
+				{
+					"StructName" : "ConsoleHandler"
+				},
+				{
+					"StructName" : "RotationFileHandler"
+				}
+			]
+		}
+	}
+}
