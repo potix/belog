@@ -22,6 +22,7 @@ logger package
   - StandardFormatter: standard formatter
 * handler
   - consoleHadnler: output to console
+  - syslogHadnler: output to syslog
   - RotationFileHandler: output to file and rotate file
 
 ## use default logger
