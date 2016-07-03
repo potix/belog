@@ -97,6 +97,8 @@ func (h *SyslogHandler) Write(loggerName string, logEvent LogEvent, formattedLog
 		if err := h.writer.Debug(formattedLog); err != nil {
 			// statistics
 		}
+	default:
+		// statistics
 	}
 }
 
