@@ -145,7 +145,7 @@ func (h *RotationFileHandler) SetBufferSize(bufferSize int) {
 }
 
 func (h *RotationFileHandler) logBufferFlushTimer() {
-	<-time.After(time.Second)
+	time.Sleep(time.Second)
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.logBufferFlush()

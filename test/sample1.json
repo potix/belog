@@ -35,6 +35,24 @@
 
 				},
 				{
+					"StructName" : "SyslogHandler",
+					"StructSetters" : [
+						{
+							"SetterName":"SetNetworkAndAddr",
+							"SetterParams":["", ""]
+						},
+						{
+							"SetterName":"SetTag",
+							"SetterParams":["test"]
+						},
+						{
+							"SetterName":"SetFacility",
+							"SetterParams":["DAEMON"]
+						}
+					]
+
+				},
+				{
 					"StructName" : "RotationFileHandler",
 					"StructSetters" : [
 						{
@@ -80,6 +98,9 @@
 			"Handlers" : [
 				{
 					"StructName" : "ConsoleHandler"
+				},
+				{
+					"StructName" : "SyslogHandler"
 				},
 				{
 					"StructName" : "RotationFileHandler"

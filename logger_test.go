@@ -33,6 +33,10 @@ func TestDefaultLoggerChange(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	if err := ChangeFilter(filter); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -42,6 +46,7 @@ func TestDefaultLoggerChange(t *testing.T) {
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := ChangeHandlers(handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -74,6 +79,10 @@ func TestDefaultLoggerAsync(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	if err := ChangeFilter(filter); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -83,6 +92,7 @@ func TestDefaultLoggerAsync(t *testing.T) {
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := ChangeHandlers(handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -130,6 +140,10 @@ func TestDefaultLoggerFlush(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	if err := ChangeFilter(filter); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -139,6 +153,7 @@ func TestDefaultLoggerFlush(t *testing.T) {
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := ChangeHandlers(handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -179,6 +194,10 @@ func TestDefaultLoggerContentTrace(t *testing.T) {
 	handler2.SetAsync(false)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	if err := ChangeFilter(filter); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -188,6 +207,7 @@ func TestDefaultLoggerContentTrace(t *testing.T) {
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := ChangeHandlers(handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -240,8 +260,12 @@ func TestDefaultLoggerContentNotice(t *testing.T) {
 	handler2.SetAsync(false)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	if err := ChangeFilter(filter); err != nil {
-		r.Errorf("%+v", err)
+		t.Errorf("%+v", err)
 	}
 	if err := ChangeFormatter(formatter); err != nil {
 		t.Errorf("%+v", err)
@@ -249,6 +273,7 @@ func TestDefaultLoggerContentNotice(t *testing.T) {
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := ChangeHandlers(handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -298,9 +323,14 @@ func TestSetLoggerGetLooger(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := SetLogger("logger1", filter, formatter, handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
@@ -337,9 +367,14 @@ func TestChangeLogger(t *testing.T) {
 	handler2.SetAsync(true)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	handlers := make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	SetLogger("logger1", filter, formatter, handlers)
 	SetLogger("logger2", filter, formatter, handlers)
 	logger := GetLogger("logger1", "logger2")
@@ -364,9 +399,14 @@ func TestChangeLogger(t *testing.T) {
 	handler2.SetAsync(false)
 	handler2.SetAsyncFlushInterval(3)
 	handler2.SetBufferSize(2048)
+	handler3 = NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
 	handlers = make([]Handler, 0, 0)
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
 	if err := logger.ChangeHandlers("logger1", handlers); err != nil {
 		t.Errorf("%+v", err)
 	}

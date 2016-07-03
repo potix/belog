@@ -21,6 +21,18 @@ loggers:
       - settername: SetOutputType
         setterparams:
         - "2"
+    - structname: SyslogHandler
+      structsetters:
+      - settername: SetNetworkAndAddr
+        setterparams:
+        - ""
+        - ""
+      - settername: SetTag
+        setterparams:
+        - "test"
+      - settername: SetFacility
+        setterparams:
+        - "Daemon"
     - structname: RotationFileHandler
       structsetters:
       - settername: SetLogFileName
@@ -53,6 +65,8 @@ loggers:
       structsetters: []
     handlers:
     - structname: ConsoleHandler
+      structsetters: []
+    - structname: SyslogHandler
       structsetters: []
     - structname: RotationFileHandler
       structsetters: []
