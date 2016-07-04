@@ -50,8 +50,9 @@ func (h *SyslogHandler) Open() {
 	writer, err := syslog.Dial(h.network, h.addr, h.facility, h.tag)
 	if err != nil {
 		go h.reopenSyslog()
+	} else {
+		h.writer = writer
 	}
-	h.writer = writer
 }
 
 //Write is output to syslog
@@ -120,6 +121,18 @@ func (h *SyslogHandler) Close() {
 func (h *SyslogHandler) SetNetworkAndAddr(network string, addr string) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
+	if h.network != network || h.addr != addr {
+		if err := h.writer.Close(); err != nil {
+			// statistics
+		}
+		h.writer = nil
+		writer, err := syslog.Dial(h.network, h.addr, h.facility, h.tag)
+		if err != nil {
+			go h.reopenSyslog()
+		} else {
+			h.writer = writer
+		}
+	}
 	h.network = network
 	h.addr = addr
 }
