@@ -35,6 +35,7 @@ const (
 
 var (
 	pid           int
+	hostname      string
 	defaultLogger *logger
 	loggers       map[string]*logger
 	loggersMutex  *sync.RWMutex
@@ -48,6 +49,7 @@ type LoggerHandler struct {
 func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
 	logInfo := &logInfo{
 		pid:      pid,
+		hostname: hostname,
 		time:     time.Now(),
 		logLevel: logLevel,
 		message:  message,
@@ -328,6 +330,10 @@ func (l *logger) changeHandlers(handlers []Handler) (err error) {
 
 func init() {
 	pid = os.Getpid()
+	name, err := os.Hostname()
+	if err == nil {
+		hostname = name
+	}
 	loggers = make(map[string]*logger)
 	loggersMutex = new(sync.RWMutex)
 	h := NewConsoleHandler()

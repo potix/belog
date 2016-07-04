@@ -21,6 +21,7 @@ var (
 //LogEvent is interface of event of log
 type LogEvent interface {
 	Pid() int
+	Hostname() string
 	Time() time.Time
 	LogLevel() string
 	LogLevelNum() LogLevel
@@ -32,6 +33,7 @@ type LogEvent interface {
 
 type logInfo struct {
 	pid      int
+	hostname string
 	time     time.Time
 	logLevel LogLevel
 	pc       uintptr
@@ -42,6 +44,10 @@ type logInfo struct {
 
 func (l *logInfo) Pid() (pid int) {
 	return l.pid
+}
+
+func (l *logInfo) Hostname() (hostname string) {
+	return l.hostname
 }
 
 func (l *logInfo) Time() (time time.Time) {

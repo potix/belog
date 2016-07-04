@@ -24,6 +24,7 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 		"%(logLevel)", log.LogLevel(),
 		"%(logLevelNum)", strconv.Itoa(int(log.LogLevelNum())),
 		"%(pid)", strconv.Itoa(log.Pid()),
+		"%(hostname)", log.Hostname(),
 		"%(loggerName)", loggerName,
 		"%(programCounter)", strconv.FormatUint(uint64(log.Pc()), 16),
 		"%(fileName)", log.FileName(),
@@ -46,6 +47,7 @@ func (f *StandardFormatter) SetDateTimeLayout(dateTimeLayout string) {
 //   %(logLevel)       : log level
 //   %(logLevelNum)    : log level number
 //   %(pid)            : process id
+//   %(hostname)       : hostname
 //   %(loggerName)     : loggername
 //   %(programCounter) : program counter
 //   %(fileName)       : filename (full path)
