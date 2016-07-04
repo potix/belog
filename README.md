@@ -264,5 +264,6 @@ type LogEvent interface {
         Message() (message string)
         SetAttr(key string, value interface{})
         GetAttr(key string) (value interface{})
+	GetAttrs() map[string]interface{}
 }
 ```
