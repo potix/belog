@@ -21,7 +21,7 @@ logger package
 * formatter
   - StandardFormatter: standard formatter
 * handler
-  - consoleHadnler: output to console
+  - consoleHadnler: output to console. support color.
   - syslogHadnler: output to syslog
   - RotationFileHandler: output to file and rotate file
 
@@ -251,16 +251,17 @@ func init() {
 * LogEvent interface
 ```
 type LogEvent interface {
-	Pid() (pid int)
-	Hostname() (hostname string)
-	Time() (time time.Time)
-	LogLevel() (logLevel string)
-	LogLevelNum() (logLevelNum LogLevel)
-	Pc() (pc uintptr)
-	FileName() (fileName string)
-	LineNum() (lineNum int)
-	Message() (message string)
-	SetAttr(key string, value interface{})
-	GetAttr(key string) (value interface{})
+        Program() (program string)
+        Pid() (pid int)
+        Hostname() (hostname string)
+        Time() (time time.Time)
+        LogLevel() (logLevel string)
+        LogLevelNum() (logLevelNum LogLevel)
+        Pc() (pc uintptr)
+        FileName() (fileName string)
+        LineNum() (lineNum int)
+        Message() (message string)
+        SetAttr(key string, value interface{})
+        GetAttr(key string) (value interface{})
 }
 ```
