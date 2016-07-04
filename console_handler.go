@@ -1,8 +1,44 @@
 package belog
 
 import (
+	"fmt"
 	"os"
 	"sync"
+)
+
+type ConsoleColor int
+
+const (
+	ConsoleColorBlack        ConsoleColor = 30
+	ConsoleColorRed                       = 31
+	ConsoleColorGreen                     = 32
+	ConsoleColorYellow                    = 33
+	ConsoleColorBlue                      = 34
+	ConsoleColorMagenta                   = 35
+	ConsoleColorCyan                      = 36
+	ConsoleColorLightGray                 = 37
+	ConsoleColorDarkGray                  = 90
+	ConsoleColorLightRed                  = 91
+	ConsoleColorLightGreen                = 92
+	ConsoleColorLightYellow               = 93
+	ConsoleColorLightBlue                 = 94
+	ConsoleColorLightMagenta              = 95
+	ConsoleColorLightCyan                 = 96
+	ConsoleColorWhite                     = 97
+)
+
+var (
+	colorMap = map[LogLevel]ConsoleColor{
+		LogLevelEmerg:  ConsoleColorLightMagenta,
+		LogLevelAlert:  ConsoleColorLightRed,
+		LogLevelCrit:   ConsoleColorMagenta,
+		LogLevelError:  ConsoleColorRed,
+		LogLevelWarn:   ConsoleColorYellow,
+		LogLevelNotice: ConsoleColorGreen,
+		LogLevelInfo:   ConsoleColorBlue,
+		LogLevelDebug:  ConsoleColorCyan,
+		LogLevelTrace:  ConsoleColorLightGray,
+	}
 )
 
 //OutputType is output type
@@ -31,12 +67,36 @@ func (h *ConsoleHandler) Write(loggerName string, logEvent LogEvent, formattedLo
 	defer h.mutex.RUnlock()
 	switch h.outputType {
 	case OutputTypeStdout:
-		_, err := os.Stdout.WriteString(formattedLog)
+		color, ok := colorMap[logEvent.LogLevelNum()]
+		if !ok {
+			color = ConsoleColorBlue
+		}
+		_, err := os.Stdout.WriteString(fmt.Sprintf("\x1b[%dm", color))
+		if err != nil {
+			// statistics
+		}
+		_, err = os.Stdout.WriteString(formattedLog)
+		if err != nil {
+			// statistics
+		}
+		_, err = os.Stdout.WriteString("\x1b[0m")
 		if err != nil {
 			// statistics
 		}
 	case OutputTypeStderr:
-		_, err := os.Stderr.WriteString(formattedLog)
+		color, ok := colorMap[logEvent.LogLevelNum()]
+		if !ok {
+			color = ConsoleColorBlue
+		}
+		_, err := os.Stderr.WriteString(fmt.Sprintf("\x1b[%dm", color))
+		if err != nil {
+			// statistics
+		}
+		_, err = os.Stderr.WriteString(formattedLog)
+		if err != nil {
+			// statistics
+		}
+		_, err = os.Stderr.WriteString("\033[0m")
 		if err != nil {
 			// statistics
 		}
@@ -56,6 +116,13 @@ func (h *ConsoleHandler) SetOutputType(outputType OutputType) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.outputType = outputType
+}
+
+//SetConsoleColor is set color by log level
+func (h *ConsoleHandler) SetConsoleColor(loglevel LogLevel, color ConsoleColor) {
+	h.mutex.Lock()
+	defer h.mutex.Unlock()
+	colorMap[loglevel] = color
 }
 
 //NewConsoleHandler is create ConsoleHandler

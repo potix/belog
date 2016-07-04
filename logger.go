@@ -14,23 +14,23 @@ type LogLevel int
 
 const (
 	//LogLevelEmerg is log level of emergency
-	LogLevelEmerg LogLevel = 1
+	LogLevelEmerg LogLevel = iota + 1
 	//LogLevelAlert is log level of alert
-	LogLevelAlert = 2
+	LogLevelAlert
 	//LogLevelCrit is log level of critical
-	LogLevelCrit = 3
+	LogLevelCrit
 	//LogLevelError is log level of error
-	LogLevelError = 4
+	LogLevelError
 	//LogLevelWarn is log level of warning
-	LogLevelWarn = 5
+	LogLevelWarn
 	//LogLevelNotice is log level of notice
-	LogLevelNotice = 6
+	LogLevelNotice
 	//LogLevelInfo is log level of info
-	LogLevelInfo = 7
+	LogLevelInfo
 	//LogLevelDebug is log level of debug
-	LogLevelDebug = 8
+	LogLevelDebug
 	//LogLevelTrace is log level of trace
-	LogLevelTrace = 9
+	LogLevelTrace
 )
 
 var (
