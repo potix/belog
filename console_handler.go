@@ -9,7 +9,8 @@ import (
 type ConsoleColor int
 
 const (
-	ConsoleColorBlack        ConsoleColor = 30
+	ConsoleNoColor           ConsoleColor = 0
+	ConsoleColorBlack                     = 30
 	ConsoleColorRed                       = 31
 	ConsoleColorGreen                     = 32
 	ConsoleColorYellow                    = 33
