@@ -110,7 +110,9 @@ func (h *SyslogHandler) Flush() {
 func (h *SyslogHandler) Close() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
-	h.writer.Close()
+	if err := h.writer.Close(); err != nil {
+		// statistics
+	}
 	h.writer = nil
 }
 

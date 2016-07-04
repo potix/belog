@@ -31,22 +31,20 @@ func (h *ConsoleHandler) Write(loggerName string, logEvent LogEvent, formattedLo
 	defer h.mutex.RUnlock()
 	switch h.outputType {
 	case OutputTypeStdout:
-		os.Stdout.WriteString(formattedLog)
+		_, err := os.Stdout.WriteString(formattedLog)
+		if err != nil {
+			// statistics
+		}
 	case OutputTypeStderr:
-		os.Stderr.WriteString(formattedLog)
+		_, err := os.Stderr.WriteString(formattedLog)
+		if err != nil {
+			// statistics
+		}
 	}
 }
 
-//Flush is call sync
+//Flush is nothing to do
 func (h *ConsoleHandler) Flush() {
-	h.mutex.RLock()
-	defer h.mutex.RUnlock()
-	switch h.outputType {
-	case OutputTypeStdout:
-		os.Stdout.Sync()
-	case OutputTypeStderr:
-		os.Stderr.Sync()
-	}
 }
 
 //Close is nothing to do

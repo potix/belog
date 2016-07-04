@@ -69,7 +69,10 @@ func (h *RotationFileHandler) Flush() {
 		h.logBufferFlush()
 	}
 	if h.logFile != nil {
-		h.logFile.Sync()
+		err := h.logFile.Sync()
+		if err != nil {
+			// statistics
+		}
 	}
 }
 
@@ -83,7 +86,10 @@ func (h *RotationFileHandler) Close() {
 	if h.async {
 		h.logBufferFlush()
 	}
-	h.logFile.Close()
+	err := h.logFile.Close()
+	if err != nil {
+		// statistics
+	}
 	h.logFile = nil
 	h.lastModifiedTime = time.Time{}
 	h.logFileSize = 0
@@ -223,7 +229,9 @@ func (h *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
 		// statistics
 		return
 	}
-	h.logFile.Close()
+	if err := h.logFile.Close(); err != nil {
+		// statistics
+	}
 	h.logFile = file
 	h.lastModifiedTime = lastLogTime
 	h.logFileSize = 0
@@ -263,13 +271,19 @@ func (h *RotationFileHandler) deleteOldLogFiles() {
 			continue
 		}
 		if dirTime.Before(oldAdjustTime) {
-			os.RemoveAll(filepath.Join(h.logDirPath, file.Name()))
+			err := os.RemoveAll(filepath.Join(h.logDirPath, file.Name()))
+			if err != nil {
+				// statistics
+			}
 		}
 	}
 }
 
 func (h *RotationFileHandler) pushBuffer(logEvent LogEvent, formattedLog string) (lastLogEvent LogEvent, logBuffer string, full bool) {
-	h.buffer.WriteString(formattedLog)
+	_, err := h.buffer.WriteString(formattedLog)
+	if err != nil {
+		// statistics
+	}
 	h.lastLogEvent = logEvent
 	if h.buffer.Len() > h.bufferSize {
 		return h.popBufferBase()

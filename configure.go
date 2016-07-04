@@ -114,7 +114,10 @@ func setupLoggers(configLoggers *configLoggers) (err error) {
 		tmpLoggers[name] = newLogger
 	}
 	for name, newLogger := range tmpLoggers {
-		SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
+		err := SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
+		if err != nil {
+			// XXX statistics
+		}
 	}
 	return nil
 }
