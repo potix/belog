@@ -12,7 +12,7 @@ import (
 func TestRotationFile(t *testing.T) {
 	now := time.Now()
 	os.RemoveAll("/var/tmp/belog-test")
-	if err := os.MkdirAll("/var/tmp/belog-test", 0755); err != nil {
+	if err := os.MkdirAll("/var/tmp/belog-test", os.FileMode(0755)); err != nil {
 		t.Errorf("%+v", err)
 	}
 	old := now.AddDate(0, 0, -1)
@@ -63,7 +63,7 @@ func TestRotationFile(t *testing.T) {
 func TestRotationFileCleanup(t *testing.T) {
 	now := time.Now()
 	os.RemoveAll("/var/tmp/belog-test")
-	if err := os.MkdirAll("/var/tmp/belog-test", 0755); err != nil {
+	if err := os.MkdirAll("/var/tmp/belog-test", os.FileMode(0755)); err != nil {
 		t.Errorf("%+v", err)
 	}
 	cmd := exec.Command("touch", "-t", "201601010101.00", "/var/tmp/belog-test/belog-test.log")

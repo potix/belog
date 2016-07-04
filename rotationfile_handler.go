@@ -186,14 +186,14 @@ func (h *RotationFileHandler) openLogFile() {
 		return
 	}
 	// make directories
-	err := os.MkdirAll(h.logDirPath, 0755)
+	err := os.MkdirAll(h.logDirPath, os.FileMode(0755))
 	if err != nil {
 		// statistics
 		return
 	}
 	// open log file
 	logFilePath := filepath.Join(h.logDirPath, h.logFileName)
-	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.FileMode(0644))
 	if err != nil {
 		// statisticsa
 		return
@@ -214,7 +214,7 @@ func (h *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
 	logFilePath := filepath.Join(h.logDirPath, h.logFileName)
 	// get rotated file path
 	rotatedLogDirPath, rotatedLogFilePath := h.getRotatedLogFilePath()
-	if err := os.MkdirAll(rotatedLogDirPath, 0755); err != nil {
+	if err := os.MkdirAll(rotatedLogDirPath, os.FileMode(0755)); err != nil {
 		// statistics
 		return
 	}
@@ -224,7 +224,7 @@ func (h *RotationFileHandler) rotateLogFile(lastLogTime time.Time) {
 		return
 	}
 	// open new log file
-	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile(logFilePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.FileMode(0644))
 	if err != nil {
 		// statistics
 		return
