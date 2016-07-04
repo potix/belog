@@ -23,6 +23,7 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 		"%(dateTime)", log.Time().Format(f.dateTimeLayout),
 		"%(logLevel)", log.LogLevel(),
 		"%(logLevelNum)", strconv.Itoa(int(log.LogLevelNum())),
+		"%(program)", log.Program(),
 		"%(pid)", strconv.Itoa(log.Pid()),
 		"%(hostname)", log.Hostname(),
 		"%(loggerName)", loggerName,
@@ -46,6 +47,7 @@ func (f *StandardFormatter) SetDateTimeLayout(dateTimeLayout string) {
 //   %(dateTime)       : date adn time
 //   %(logLevel)       : log level
 //   %(logLevelNum)    : log level number
+//   %(program)        : program name
 //   %(pid)            : process id
 //   %(hostname)       : hostname
 //   %(loggerName)     : loggername
@@ -64,7 +66,7 @@ func (f *StandardFormatter) SetLayout(layout string) {
 func NewStandardFormatter() (standardFormatter *StandardFormatter) {
 	return &StandardFormatter{
 		dateTimeLayout: "2006-01-02 15:04:05",
-		layout:         "%(dateTime) [%(logLevel)] (%(pid)) %(loggerName) %(fileName) %(lineNum) %(message)",
+		layout:         "%(dateTime) [%(logLevel)] (%(pid)) %(program) %(loggerName) %(fileName) %(lineNum) %(message)",
 		mutex:          new(sync.RWMutex),
 	}
 }

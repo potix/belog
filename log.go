@@ -20,6 +20,7 @@ var (
 
 //LogEvent is interface of event of log
 type LogEvent interface {
+	Program() (program string)
 	Pid() (pid int)
 	Hostname() (hostname string)
 	Time() (time time.Time)
@@ -34,6 +35,7 @@ type LogEvent interface {
 }
 
 type logInfo struct {
+	program  string
 	pid      int
 	hostname string
 	time     time.Time
@@ -43,6 +45,11 @@ type logInfo struct {
 	lineNum  int
 	message  string
 	attr     map[string]interface{}
+}
+
+//Program is return program
+func (l *logInfo) Program() (program string) {
+	return l.program
 }
 
 //Pid is return process id

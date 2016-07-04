@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
@@ -34,6 +35,7 @@ const (
 )
 
 var (
+	program       string
 	pid           int
 	hostname      string
 	defaultLogger *logger
@@ -48,6 +50,7 @@ type LoggerHandler struct {
 
 func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
 	logInfo := &logInfo{
+		program:  program,
 		pid:      pid,
 		hostname: hostname,
 		time:     time.Now(),
@@ -329,6 +332,7 @@ func (l *logger) changeHandlers(handlers []Handler) (err error) {
 }
 
 func init() {
+	program = filepath.Base(os.Args[0])
 	pid = os.Getpid()
 	name, err := os.Hostname()
 	if err == nil {
