@@ -22,8 +22,8 @@ logger package
   - StandardFormatter: standard formatter
   - JsonFormatter: json formatter
 * handler
-  - consoleHadnler: output to console. support color.
-  - syslogHadnler: output to syslog
+  - ConsoleHadnler: output to console. support color.
+  - SyslogHadnler: output to syslog
   - RotationFileHandler: output to file and rotate file
 
 ## use default logger
