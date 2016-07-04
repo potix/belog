@@ -129,7 +129,7 @@ func (h *SyslogHandler) SetTag(tag string) {
 	h.tag = tag
 }
 
-//Setfacility is set facility
+//SetFacility is set facility
 func (h *SyslogHandler) SetFacility(facility string) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
