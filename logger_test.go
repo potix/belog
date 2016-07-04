@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func TestDefaultLoggerChange(t *testing.T) {
+func TestDefaultLoggerChange1(t *testing.T) {
 	Emerg("test\n")
 	Alert("test\n")
 	Crit("test\n")
@@ -23,6 +23,61 @@ func TestDefaultLoggerChange(t *testing.T) {
 	formatter := NewStandardFormatter()
 	formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
 	formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(hostname) %(program) %(programCounter) %(loggerName) %(fileName) %(shortFileName) %(lineNum) %(message)")
+	handler1 := NewConsoleHandler()
+	handler1.SetOutputType(OutputTypeStderr)
+	handler1.SetConsoleColor(LogLevelEmerg, ConsoleColorBlack)
+	handler2 := NewRotationFileHandler()
+	handler2.SetLogFileName("belog-test.log")
+	handler2.SetLogDirPath("/var/tmp/belog-test")
+	handler2.SetMaxAge(2)
+	handler2.SetMaxSize(65535)
+	handler2.SetAsync(true)
+	handler2.SetAsyncFlushInterval(3)
+	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
+	if err := ChangeFilter(filter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	if err := ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handlers := make([]Handler, 0, 0)
+	handlers = append(handlers, handler1)
+	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
+	if err := ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
+	Emerg("test\n")
+	Alert("test\n")
+	Crit("test\n")
+	Error("test\n")
+	Warn("test\n")
+	Notice("test\n")
+	Info("test\n")
+	Debug("test\n")
+	Trace("test\n")
+	Flush()
+}
+
+func TestDefaultLoggerChange2(t *testing.T) {
+	Emerg("test\n")
+	Alert("test\n")
+	Crit("test\n")
+	Error("test\n")
+	Warn("test\n")
+	Notice("test\n")
+	Info("test\n")
+	Debug("test\n")
+	Trace("test\n")
+	Flush()
+	filter := NewLogLevelFilter()
+	filter.SetLogLevel(LogLevelTrace)
+	formatter := NewJsonFormatter()
+	formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
 	handler1 := NewConsoleHandler()
 	handler1.SetOutputType(OutputTypeStderr)
 	handler1.SetConsoleColor(LogLevelEmerg, ConsoleColorBlack)
