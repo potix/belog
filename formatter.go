@@ -10,7 +10,7 @@ var (
 
 //Formatter is interface of formatter
 type Formatter interface {
-	Format(loggerName string, log LogEvent) (logString string)
+	Format(loggerName string, log LogEvent) (formattedLog string, err error)
 }
 
 func getFormatter(name string) (formatter Formatter, err error) {

@@ -281,7 +281,11 @@ func (l *logger) log(loggerName string, logEvent LogEvent) {
 	if ok := l.filter.Evaluate(loggerName, logEvent); !ok {
 		return
 	}
-	formattedLog := l.formatter.Format(loggerName, logEvent)
+	formattedLog, err := l.formatter.Format(loggerName, logEvent)
+	if err != nil {
+		// statistics
+		return
+	}
 	for _, handler := range l.handlers {
 		handler.Write(loggerName, logEvent, formattedLog)
 	}

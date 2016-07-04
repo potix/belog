@@ -16,7 +16,7 @@ type StandardFormatter struct {
 }
 
 //Format is format log event
-func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLog string) {
+func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLog string, err error) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
 	replacer := strings.NewReplacer(
@@ -32,7 +32,7 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 		"%(shortFileName)", filepath.Base(log.FileName()),
 		"%(lineNum)", strconv.Itoa(log.LineNum()),
 		"%(message)", log.Message())
-	return replacer.Replace(f.layout)
+	return replacer.Replace(f.layout), nil
 }
 
 //SetDateTimeLayout is set layout of date and time. See Time.Format.

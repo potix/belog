@@ -32,6 +32,7 @@ type LogEvent interface {
 	Message() (message string)
 	SetAttr(key string, value interface{})
 	GetAttr(key string) (value interface{})
+	GetAttrs() map[string]interface{}
 }
 
 type logInfo struct {
@@ -44,7 +45,7 @@ type logInfo struct {
 	fileName string
 	lineNum  int
 	message  string
-	attr     map[string]interface{}
+	attrs    map[string]interface{}
 }
 
 //Program is return program
@@ -103,20 +104,25 @@ func (l *logInfo) Message() (message string) {
 
 //SetAttr is set attribute
 func (l *logInfo) SetAttr(key string, value interface{}) {
-	if l.attr == nil {
-		l.attr = make(map[string]interface{})
+	if l.attrs == nil {
+		l.attrs = make(map[string]interface{})
 	}
-	l.attr[key] = value
+	l.attrs[key] = value
 }
 
 //GetAttr is get attribute
 func (l *logInfo) GetAttr(key string) (value interface{}) {
-	if l.attr == nil {
+	if l.attrs == nil {
 		return nil
 	}
-	value, ok := l.attr[key]
+	value, ok := l.attrs[key]
 	if !ok {
 		return nil
 	}
 	return value
+}
+
+//GetAttrs is get attributes
+func (l *logInfo) GetAttrs() map[string]interface{} {
+	return l.attrs
 }
