@@ -189,7 +189,9 @@ func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handl
 
 func logBase(logLevel LogLevel, message string) {
 	logInfo := &logInfo{
+		program:  program,
 		pid:      pid,
+		hostname: hostname,
 		time:     time.Now(),
 		logLevel: logLevel,
 		message:  message,
