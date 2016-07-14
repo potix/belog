@@ -30,31 +30,31 @@ const (
 
 var (
 	colorMap = map[LogLevel]ConsoleColor{
-		LogLevelEmerg:  ConsoleColorLightMagenta,
-		LogLevelAlert:  ConsoleColorLightRed,
-		LogLevelCrit:   ConsoleColorMagenta,
-		LogLevelError:  ConsoleColorRed,
-		LogLevelWarn:   ConsoleColorYellow,
-		LogLevelNotice: ConsoleColorGreen,
-		LogLevelInfo:   ConsoleColorBlue,
-		LogLevelDebug:  ConsoleColorCyan,
-		LogLevelTrace:  ConsoleColorLightGray,
+		LogLevelEmerg:  ConsoleNoColor,
+		LogLevelAlert:  ConsoleNoColor,
+		LogLevelCrit:   ConsoleNoColor,
+		LogLevelError:  ConsoleNoColor,
+		LogLevelWarn:   ConsoleNoColor,
+		LogLevelNotice: ConsoleNoColor,
+		LogLevelInfo:   ConsoleNoColor,
+		LogLevelDebug:  ConsoleNoColor,
+		LogLevelTrace:  ConsoleNoColor,
 	}
 )
 
-//OutputType is output type
-type OutputType int
+//ConsoleOutputType is output type
+type ConsoleOutputType int
 
 const (
-	//OutputTypeStdout is output type of stdout
-	OutputTypeStdout OutputType = 1
-	//OutputTypeStderr is output type of stderr
-	OutputTypeStderr = 2
+	//ConsoleOutputTypeStdout is output type of stdout
+	ConsoleOutputTypeStdout ConsoleOutputType = 1
+	//ConsoleOutputTypeStderr is output type of stderr
+	ConsoleOutputTypeStderr = 2
 )
 
 //ConsoleHandler is handler of console
 type ConsoleHandler struct {
-	outputType OutputType
+	outputType ConsoleOutputType
 	mutex      *sync.RWMutex
 }
 
@@ -67,7 +67,7 @@ func (h *ConsoleHandler) Write(loggerName string, logEvent LogEvent, formattedLo
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
 	switch h.outputType {
-	case OutputTypeStdout:
+	case ConsoleOutputTypeStdout:
 		color, ok := colorMap[logEvent.LogLevelNum()]
 		if !ok {
 			color = ConsoleColorBlue
@@ -84,7 +84,7 @@ func (h *ConsoleHandler) Write(loggerName string, logEvent LogEvent, formattedLo
 		if err != nil {
 			// statistics
 		}
-	case OutputTypeStderr:
+	case ConsoleOutputTypeStderr:
 		color, ok := colorMap[logEvent.LogLevelNum()]
 		if !ok {
 			color = ConsoleColorBlue
@@ -113,7 +113,7 @@ func (h *ConsoleHandler) Close() {
 }
 
 //SetOutputType is set output type
-func (h *ConsoleHandler) SetOutputType(outputType OutputType) {
+func (h *ConsoleHandler) SetOutputType(outputType ConsoleOutputType) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 	h.outputType = outputType
@@ -129,7 +129,7 @@ func (h *ConsoleHandler) SetConsoleColor(loglevel LogLevel, color ConsoleColor) 
 //NewConsoleHandler is create ConsoleHandler
 func NewConsoleHandler() (consoleHandler *ConsoleHandler) {
 	return &ConsoleHandler{
-		outputType: OutputTypeStdout,
+		outputType: ConsoleOutputTypeStdout,
 		mutex:      new(sync.RWMutex),
 	}
 }
