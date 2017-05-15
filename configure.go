@@ -12,7 +12,8 @@ import (
 	"strings"
 )
 
-type configLoggers struct {
+//ConfigLoggers is config of Loggers
+type ConfigLoggers struct {
 	Loggers map[string]configLogger
 }
 
@@ -34,7 +35,7 @@ type configStructSetter struct {
 
 //LoadConfig is load configration file
 func LoadConfig(configFilePath string) (err error) {
-	configLoggers := new(configLoggers)
+	configLoggers := new(ConfigLoggers)
 	ext := filepath.Ext(configFilePath)
 	switch ext {
 	case ".tml":
@@ -73,7 +74,7 @@ func LoadConfig(configFilePath string) (err error) {
 }
 
 // SetupLoggers is setup from configLoggets
-func SetupLoggers(configLoggers *configLoggers) (err error) {
+func SetupLoggers(configLoggers *ConfigLoggers) (err error) {
 	tmpLoggers := make(map[string]*logger)
 	for name, loggerConfig := range configLoggers.Loggers {
 		// create filter
