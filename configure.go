@@ -69,10 +69,11 @@ func LoadConfig(configFilePath string) (err error) {
 	default:
 		return errors.Errorf("unexpected file extension (%v)", ext)
 	}
-	return setupLoggers(configLoggers)
+	return SetupLoggers(configLoggers)
 }
 
-func setupLoggers(configLoggers *configLoggers) (err error) {
+// SetupLoggers is setup from configLoggets
+func SetupLoggers(configLoggers *configLoggers) (err error) {
 	tmpLoggers := make(map[string]*logger)
 	for name, loggerConfig := range configLoggers.Loggers {
 		// create filter
