@@ -52,12 +52,12 @@ func TestGetLogger(t *testing.T) {
 	if !ok {
 		t.Errorf("not found test2 logger")
 	}
-	logger := GetLogger("test1", "test2")
-	ll1, ok := logger.loggers["test1"]
+	loggerGroup := GetLoggerGroup("test1", "test2")
+	ll1, ok := loggerGroup.loggers["test1"]
 	if !ok {
 		t.Errorf("not found test1 logger")
 	}
-	ll2, ok := logger.loggers["test2"]
+	ll2, ok := loggerGroup.loggers["test2"]
 	if !ok {
 		t.Errorf("not found test2 logger")
 	}

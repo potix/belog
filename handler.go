@@ -10,6 +10,7 @@ var (
 
 //Handler is interface of handler
 type Handler interface {
+	IsOpened() (bool)
 	Open()
 	Write(loggerName string, logEvent LogEvent, formattedLog string)
 	Flush()

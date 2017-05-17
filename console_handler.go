@@ -6,25 +6,43 @@ import (
 	"sync"
 )
 
+//ConsoleColor is console color
 type ConsoleColor int
 
 const (
+	//ConsoleNoColor is no color
 	ConsoleNoColor           ConsoleColor = 0
+	//ConsoleColorBlack is black
 	ConsoleColorBlack                     = 30
+	//ConsoleColorRed is red
 	ConsoleColorRed                       = 31
+	//ConsoleColorGreen is green
 	ConsoleColorGreen                     = 32
+	//ConsoleColorYellow is yellow
 	ConsoleColorYellow                    = 33
+	//ConsoleColorBlue is blue
 	ConsoleColorBlue                      = 34
+	//ConsoleColorMagenta is magenta
 	ConsoleColorMagenta                   = 35
+	//ConsoleColorCyan is cyan
 	ConsoleColorCyan                      = 36
+	//ConsoleColorLightGray is light gray
 	ConsoleColorLightGray                 = 37
+	//ConsoleColorDarkGray is dark gray 
 	ConsoleColorDarkGray                  = 90
+	//ConsoleColorLightRed light red
 	ConsoleColorLightRed                  = 91
+	//ConsoleColorLightGreen light freen
 	ConsoleColorLightGreen                = 92
+	//ConsoleColorLightYellow is light yellow
 	ConsoleColorLightYellow               = 93
+	//ConsoleColorLightBlue is light blue
 	ConsoleColorLightBlue                 = 94
+	//ConsoleColorLightMagenta is light magenta
 	ConsoleColorLightMagenta              = 95
+	//ConsoleColorLightCyan is light cyan
 	ConsoleColorLightCyan                 = 96
+	//ConsoleColorWhite is white
 	ConsoleColorWhite                     = 97
 )
 
@@ -56,6 +74,11 @@ const (
 type ConsoleHandler struct {
 	outputType ConsoleOutputType
 	mutex      *sync.RWMutex
+}
+
+//IsOpened is nothing to do
+func (h *ConsoleHandler) IsOpened() (bool) {
+	return true
 }
 
 //Open is nothing to do

@@ -35,18 +35,34 @@ var (
 
 //SyslogHandler is handler of syslog
 type SyslogHandler struct {
-	network  string
-	addr     string
-	tag      string
-	facility syslog.Priority
-	writer   *syslog.Writer
-	mutex    *sync.RWMutex
+	network    string
+	addr       string
+	tag        string
+	facility   syslog.Priority
+	writer     *syslog.Writer
+	reopenable bool
+	mutex      *sync.RWMutex
+}
+
+//IsOpened is opened
+func (h *SyslogHandler) IsOpened() (bool) {
+	h.mutex.RLock()
+	w := h.writer
+	h.mutex.RUnlock()
+	if w == nil {
+		return false
+	}
+	return true
 }
 
 //Open is open syslog
 func (h *SyslogHandler) Open() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
+	if h.writer != nil {
+		return
+	}
+	h.reopenable = true
 	writer, err := syslog.Dial(h.network, h.addr, h.facility, h.tag)
 	if err != nil {
 		go h.reopenSyslog()
@@ -92,9 +108,9 @@ func (h *SyslogHandler) Write(loggerName string, logEvent LogEvent, formattedLog
 		if err := h.writer.Info(formattedLog); err != nil {
 			// statistics
 		}
-	case LogLevelTrace:
-		fallthrough
 	case LogLevelDebug:
+		fallthrough
+	case LogLevelTrace:
 		if err := h.writer.Debug(formattedLog); err != nil {
 			// statistics
 		}
@@ -111,6 +127,10 @@ func (h *SyslogHandler) Flush() {
 func (h *SyslogHandler) Close() {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
+	h.reopenable = false
+	if h.writer == nil {
+		return
+	}
 	if err := h.writer.Close(); err != nil {
 		// statistics
 	}
@@ -158,7 +178,12 @@ func (h *SyslogHandler) SetFacility(facility string) {
 func (h *SyslogHandler) reopenSyslog() {
 	// retry Open
 	time.Sleep(time.Second)
-	h.Open()
+	h.mutex.RLock()
+	reopenable := h.reopenable
+	h.mutex.RUnlock()
+	if reopenable {
+		h.Open()
+	}
 }
 
 //NewSyslogHandler is create SyslogHandler

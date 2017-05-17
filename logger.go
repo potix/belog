@@ -43,12 +43,16 @@ var (
 	loggersMutex  *sync.RWMutex
 )
 
-//LoggerHandler is logger handler
-type LoggerHandler struct {
+//
+// logger group wrapper
+//
+
+//LoggerGroup is logger group
+type LoggerGroup struct {
 	loggers map[string]*logger
 }
 
-func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
+func (l *LoggerGroup) logBase(logLevel LogLevel, message string) {
 	logInfo := &logInfo{
 		program:  program,
 		pid:      pid,
@@ -68,60 +72,60 @@ func (l *LoggerHandler) logBase(logLevel LogLevel, message string) {
 	}
 }
 
-//Emerg is output log of emergency level
-func (l *LoggerHandler) Emerg(format string, args ...interface{}) {
+//Emerg is output log of emergency level with logger group
+func (l *LoggerGroup) Emerg(format string, args ...interface{}) {
 	l.logBase(LogLevelEmerg, fmt.Sprintf(format, args...))
 }
 
-//Alert is output log of alert level
-func (l *LoggerHandler) Alert(format string, args ...interface{}) {
+//Alert is output log of alert level with logger group
+func (l *LoggerGroup) Alert(format string, args ...interface{}) {
 	l.logBase(LogLevelAlert, fmt.Sprintf(format, args...))
 }
 
-//Crit is output log of critical level
-func (l *LoggerHandler) Crit(format string, args ...interface{}) {
+//Crit is output log of critical level with logger group
+func (l *LoggerGroup) Crit(format string, args ...interface{}) {
 	l.logBase(LogLevelCrit, fmt.Sprintf(format, args...))
 }
 
-//Error is output log of error level
-func (l *LoggerHandler) Error(format string, args ...interface{}) {
+//Error is output log of error level with logger group
+func (l *LoggerGroup) Error(format string, args ...interface{}) {
 	l.logBase(LogLevelError, fmt.Sprintf(format, args...))
 }
 
-//Warn is output log of warn level
-func (l *LoggerHandler) Warn(format string, args ...interface{}) {
+//Warn is output log of warn level with logger group
+func (l *LoggerGroup) Warn(format string, args ...interface{}) {
 	l.logBase(LogLevelWarn, fmt.Sprintf(format, args...))
 }
 
-//Notice is output log of notice level
-func (l *LoggerHandler) Notice(format string, args ...interface{}) {
+//Notice is output log of notice level with logger group
+func (l *LoggerGroup) Notice(format string, args ...interface{}) {
 	l.logBase(LogLevelNotice, fmt.Sprintf(format, args...))
 }
 
-//Info is output log of info level
-func (l *LoggerHandler) Info(format string, args ...interface{}) {
+//Info is output log of info level with logger group
+func (l *LoggerGroup) Info(format string, args ...interface{}) {
 	l.logBase(LogLevelInfo, fmt.Sprintf(format, args...))
 }
 
-//Debug is output log of debug level
-func (l *LoggerHandler) Debug(format string, args ...interface{}) {
+//Debug is output log of debug level with logger group
+func (l *LoggerGroup) Debug(format string, args ...interface{}) {
 	l.logBase(LogLevelDebug, fmt.Sprintf(format, args...))
 }
 
-//Trace is output log of trace level
-func (l *LoggerHandler) Trace(format string, args ...interface{}) {
+//Trace is output log of trace level with logger group
+func (l *LoggerGroup) Trace(format string, args ...interface{}) {
 	l.logBase(LogLevelTrace, fmt.Sprintf(format, args...))
 }
 
-//Flush is flush
-func (l *LoggerHandler) Flush() {
+//Flush is flush log with logger group
+func (l *LoggerGroup) Flush() {
 	for _, logger := range l.loggers {
 		logger.flush()
 	}
 }
 
-//ChangeFilter is change fileter
-func (l *LoggerHandler) ChangeFilter(name string, filter Filter) (err error) {
+//ChangeFilterByLoggerName is change fileter by logger name of logger group
+func (l *LoggerGroup) ChangeFilterByLoggerName(name string, filter Filter) (error) {
 	logger, ok := l.loggers[name]
 	if !ok {
 		return errors.Errorf("not found name")
@@ -129,8 +133,8 @@ func (l *LoggerHandler) ChangeFilter(name string, filter Filter) (err error) {
 	return logger.changeFilter(filter)
 }
 
-//ChangeFormatter is change formatter
-func (l *LoggerHandler) ChangeFormatter(name string, formatter Formatter) (err error) {
+//ChangeFormatterByLoggerName is change formatter by logger name of logger group
+func (l *LoggerGroup) ChangeFormatterByLoggerName(name string, formatter Formatter) (error) {
 	logger, ok := l.loggers[name]
 	if !ok {
 		return errors.Errorf("not found name")
@@ -138,8 +142,8 @@ func (l *LoggerHandler) ChangeFormatter(name string, formatter Formatter) (err e
 	return logger.changeFormatter(formatter)
 }
 
-//ChangeHandlers is change handlers
-func (l *LoggerHandler) ChangeHandlers(name string, handlers []Handler) (err error) {
+//ChangeHandlersByLoggerName is change handlers by logger name of logger group
+func (l *LoggerGroup) ChangeHandlersByLoggerName(name string, handlers []Handler) (error) {
 	logger, ok := l.loggers[name]
 	if !ok {
 		return errors.Errorf("not found name")
@@ -147,27 +151,60 @@ func (l *LoggerHandler) ChangeHandlers(name string, handlers []Handler) (err err
 	return logger.changeHandlers(handlers)
 }
 
-//GetLogger is get logger
-func GetLogger(names ...string) (loggerHandle *LoggerHandler) {
+//ChangeFilter is change fileter of logger group
+func (l *LoggerGroup) ChangeFilter(filter Filter) (err error) {
+	for _, logger := range l.loggers {
+		err = logger.changeFilter(filter)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//ChangeFormatter is change formatter of logger group
+func (l *LoggerGroup) ChangeFormatter(formatter Formatter) (err error) {
+	for _, logger := range l.loggers {
+		err = logger.changeFormatter(formatter)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//ChangeHandlers is change handlers of logger group
+func (l *LoggerGroup) ChangeHandlers(handlers []Handler) (err error) {
+	for _, logger := range l.loggers {
+		err = logger.changeHandlers(handlers)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+//GetLoggerGroup is get logger group
+func GetLoggerGroup(names ...string) (loggerGroup *LoggerGroup) {
 	loggersMutex.RLock()
 	defer loggersMutex.RUnlock()
-	loggerHandler := &LoggerHandler{
+	loggerGroup = &LoggerGroup{
 		loggers: make(map[string]*logger),
 	}
 	for _, name := range names {
 		logger, ok := loggers[name]
 		if !ok {
-			loggerHandler.loggers[name] = defaultLogger
+			loggerGroup.loggers[name] = defaultLogger
 		} else {
-			loggerHandler.loggers[name] = logger
+			loggerGroup.loggers[name] = logger
 		}
 	}
-	return loggerHandler
+	return loggerGroup
 }
 
 //SetLogger is set logger
 func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handler) (err error) {
-	if name == "" || filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
+	if  filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
 	}
 	loggersMutex.Lock()
@@ -182,10 +219,16 @@ func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handl
 		mutex:     new(sync.RWMutex),
 	}
 	for _, handler := range handlers {
-		handler.Open()
+		if !handler.IsOpened() {
+			handler.Open()
+		}
 	}
 	return nil
 }
+
+//
+// default logger wrapper
+//
 
 func logBase(logLevel LogLevel, message string) {
 	logInfo := &logInfo{
@@ -202,55 +245,55 @@ func logBase(logLevel LogLevel, message string) {
 		logInfo.fileName = fileName
 		logInfo.lineNum = lineNum
 	}
-	defaultLogger.log("", logInfo)
+	defaultLogger.log("default", logInfo)
 }
 
-//Emerg is output log of emergency level by default logger
+//Emerg is output log of emergency level with default logger
 func Emerg(format string, args ...interface{}) {
 	logBase(LogLevelEmerg, fmt.Sprintf(format, args...))
 }
 
-//Alert is output log of alert level by default logger
+//Alert is output log of alert level with default logger
 func Alert(format string, args ...interface{}) {
 	logBase(LogLevelAlert, fmt.Sprintf(format, args...))
 }
 
-//Crit is output log of critical level by default logger
+//Crit is output log of critical level with default logger
 func Crit(format string, args ...interface{}) {
 	logBase(LogLevelCrit, fmt.Sprintf(format, args...))
 }
 
-//Error is output log of error level by default logger
+//Error is output log of error level with default logger
 func Error(format string, args ...interface{}) {
 	logBase(LogLevelError, fmt.Sprintf(format, args...))
 }
 
-//Warn is output log of warning level by default logger
+//Warn is output log of warning level with default logger
 func Warn(format string, args ...interface{}) {
 	logBase(LogLevelWarn, fmt.Sprintf(format, args...))
 }
 
-//Notice is output log of notice level by default logger
+//Notice is output log of notice level with default logger
 func Notice(format string, args ...interface{}) {
 	logBase(LogLevelNotice, fmt.Sprintf(format, args...))
 }
 
-//Info is output log of info level by default logger
+//Info is output log of info level with default logger
 func Info(format string, args ...interface{}) {
 	logBase(LogLevelInfo, fmt.Sprintf(format, args...))
 }
 
-//Debug is output log of debug level by default logger
+//Debug is output log of debug level with default logger
 func Debug(format string, args ...interface{}) {
 	logBase(LogLevelDebug, fmt.Sprintf(format, args...))
 }
 
-//Trace is output log of trace level by default logger
+//Trace is output log of trace level with default logger
 func Trace(format string, args ...interface{}) {
 	logBase(LogLevelTrace, fmt.Sprintf(format, args...))
 }
 
-//Flush is output log of flush level by default logger
+//Flush is flush log of default logger
 func Flush() {
 	defaultLogger.flush()
 }
@@ -269,6 +312,10 @@ func ChangeFormatter(formatter Formatter) (err error) {
 func ChangeHandlers(handlers []Handler) (err error) {
 	return defaultLogger.changeHandlers(handlers)
 }
+
+//
+// logger
+//
 
 type logger struct {
 	filter    Filter
@@ -328,11 +375,15 @@ func (l *logger) changeHandlers(handlers []Handler) (err error) {
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
 	for _, handler := range l.handlers {
-		handler.Close()
+		if handler.IsOpened() {
+			handler.Close()
+		}
 	}
 	l.handlers = handlers
 	for _, handler := range l.handlers {
-		handler.Open()
+		if !handler.IsOpened() {
+			handler.Open()
+		}
 	}
 	return nil
 }
@@ -353,5 +404,7 @@ func init() {
 		handlers:  []Handler{h},
 		mutex:     new(sync.RWMutex),
 	}
-	h.Open()
+	if !h.IsOpened() {
+		h.Open()
+	}
 }

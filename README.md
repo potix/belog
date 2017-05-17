@@ -6,13 +6,23 @@ logger package
 
 - logging process
 ```
- logging   --------        -----------        ---------
-     ---> | filter | ---> | formatter | -+-> | handler | ---> console
-           --------        -----------   |    ---------
-                                         |    ---------
-                                         +-> | handler | ---> file
-                                              ---------
-       |----------------- logger -----------------------|
+                                                                        ---
+ logging   --------        -----------        ---------                  |
+     ---> | filter | ---> | formatter | -+-> | handler | ---> console    |
+           --------        -----------   |    ---------                  |
+                                         |    ---------                  |
+                                         +-> | handler | ---> file       |
+                                              ---------                  |
+       |----------------- logger -----------------------|                |
+                                                                         | logger group
+ logging   --------        -----------        ---------                  |
+     ---> | filter | ---> | formatter | -+-> | handler | ---> console    |
+           --------        -----------   |    ---------                  |
+                                         |    ---------                  |
+                                         +-> | handler | ---> file       |
+                                              ---------                  |
+       |----------------- logger -----------------------|                |
+                                                                        ---
 ```
 
 ## includes
@@ -152,13 +162,13 @@ func init() {
 }
 ```
 
-## use logger (no default logger)
-* get logger
+## use logger group (no default logger)
+* get logger group
   - can get mutiple logger
 
 ```
 func init() {
-	logger := belog.GetLogger("mylogger1", "mylogger2")
+	logger := belog.GetLoggerGroup("mylogger1", "mylogger2")
 	logger.Info("test")
 }
 ```
@@ -224,6 +234,7 @@ func init() {
 
 ```
 type Handler interface {
+        IsOpened()
         Open()
         Write(loggerName string, logEvent LogEvent, formattedLog string)
         Flush()

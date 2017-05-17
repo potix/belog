@@ -287,15 +287,15 @@ func TestDefaultLoggerContentTrace(t *testing.T) {
 		t.Errorf("flush error")
 	}
 	// write
-	exp := `datetime [EMERG:1]  logger_test.go test
-datetime [ALERT:2]  logger_test.go test
-datetime [CRIT:3]  logger_test.go test
-datetime [ERROR:4]  logger_test.go test
-datetime [WARN:5]  logger_test.go test
-datetime [NOTICE:6]  logger_test.go test
-datetime [INFO:7]  logger_test.go test
-datetime [DEBUG:8]  logger_test.go test
-datetime [TRACE:9]  logger_test.go test
+	exp := `datetime [EMERG:1] default logger_test.go test
+datetime [ALERT:2] default logger_test.go test
+datetime [CRIT:3] default logger_test.go test
+datetime [ERROR:4] default logger_test.go test
+datetime [WARN:5] default logger_test.go test
+datetime [NOTICE:6] default logger_test.go test
+datetime [INFO:7] default logger_test.go test
+datetime [DEBUG:8] default logger_test.go test
+datetime [TRACE:9] default logger_test.go test
 `
 	if exp != string(b) {
 		t.Errorf("mismatch log (exp %v != act %v)", exp, string(b))
@@ -354,19 +354,19 @@ func TestDefaultLoggerContentNotice(t *testing.T) {
 		t.Errorf("flush error")
 	}
 	// write
-	exp := `datetime [EMERG:1]  logger_test.go test
-datetime [ALERT:2]  logger_test.go test
-datetime [CRIT:3]  logger_test.go test
-datetime [ERROR:4]  logger_test.go test
-datetime [WARN:5]  logger_test.go test
-datetime [NOTICE:6]  logger_test.go test
+	exp := `datetime [EMERG:1] default logger_test.go test
+datetime [ALERT:2] default logger_test.go test
+datetime [CRIT:3] default logger_test.go test
+datetime [ERROR:4] default logger_test.go test
+datetime [WARN:5] default logger_test.go test
+datetime [NOTICE:6] default logger_test.go test
 `
 	if exp != string(b) {
 		t.Errorf("mismatch log (exp %v != act %v)", exp, string(b))
 	}
 }
 
-func TestSetLoggerGetLooger(t *testing.T) {
+func TestSetLoggerGetLoogerGroup(t *testing.T) {
 	os.RemoveAll("/var/tmp/belog-test")
 	filter := NewLogLevelFilter()
 	filter.SetLogLevel(LogLevelTrace)
@@ -398,20 +398,20 @@ func TestSetLoggerGetLooger(t *testing.T) {
 	if err := SetLogger("logger2", filter, formatter, handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
-	logger := GetLogger("logger1", "logger2")
-	logger.Emerg("test\n")
-	logger.Alert("test\n")
-	logger.Crit("test\n")
-	logger.Error("test\n")
-	logger.Warn("test\n")
-	logger.Notice("test\n")
-	logger.Info("test\n")
-	logger.Debug("test\n")
-	logger.Trace("test\n")
-	logger.Flush()
+	loggerGroup := GetLoggerGroup("logger1", "logger2")
+	loggerGroup.Emerg("test\n")
+	loggerGroup.Alert("test\n")
+	loggerGroup.Crit("test\n")
+	loggerGroup.Error("test\n")
+	loggerGroup.Warn("test\n")
+	loggerGroup.Notice("test\n")
+	loggerGroup.Info("test\n")
+	loggerGroup.Debug("test\n")
+	loggerGroup.Trace("test\n")
+	loggerGroup.Flush()
 }
 
-func TestChangeLogger(t *testing.T) {
+func TestChangeLoggerGroupByLoggerName(t *testing.T) {
 	os.RemoveAll("/var/tmp/belog-test")
 	filter := NewLogLevelFilter()
 	filter.SetLogLevel(LogLevelTrace)
@@ -439,16 +439,16 @@ func TestChangeLogger(t *testing.T) {
 	handlers = append(handlers, handler3)
 	SetLogger("logger1", filter, formatter, handlers)
 	SetLogger("logger2", filter, formatter, handlers)
-	logger := GetLogger("logger1", "logger2")
+	loggerGroup := GetLoggerGroup("logger1", "logger2")
 	filter = NewLogLevelFilter()
 	filter.SetLogLevel(LogLevelInfo)
-	if err := logger.ChangeFilter("logger1", filter); err != nil {
+	if err := loggerGroup.ChangeFilterByLoggerName("logger1", filter); err != nil {
 		t.Errorf("%+v", err)
 	}
 	formatter = NewStandardFormatter()
 	formatter.SetDateTimeLayout("2006-01-02 15:04:05")
 	formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(hostname) %(program) %(loggerName) %(shortFileName) %(shortFileName) %(lineNum) %(message)")
-	if err := logger.ChangeFormatter("logger1", formatter); err != nil {
+	if err := loggerGroup.ChangeFormatterByLoggerName("logger1",formatter); err != nil {
 		t.Errorf("%+v", err)
 	}
 	handler1 = NewConsoleHandler()
@@ -470,17 +470,91 @@ func TestChangeLogger(t *testing.T) {
 	handlers = append(handlers, handler1)
 	handlers = append(handlers, handler2)
 	handlers = append(handlers, handler3)
-	if err := logger.ChangeHandlers("logger1", handlers); err != nil {
+	if err := loggerGroup.ChangeHandlersByLoggerName("logger1", handlers); err != nil {
 		t.Errorf("%+v", err)
 	}
-	logger.Emerg("test\n")
-	logger.Alert("test\n")
-	logger.Crit("test\n")
-	logger.Error("test\n")
-	logger.Warn("test\n")
-	logger.Notice("test\n")
-	logger.Info("test\n")
-	logger.Debug("test\n")
-	logger.Trace("test\n")
-	logger.Flush()
+	loggerGroup.Emerg("test\n")
+	loggerGroup.Alert("test\n")
+	loggerGroup.Crit("test\n")
+	loggerGroup.Error("test\n")
+	loggerGroup.Warn("test\n")
+	loggerGroup.Notice("test\n")
+	loggerGroup.Info("test\n")
+	loggerGroup.Debug("test\n")
+	loggerGroup.Trace("test\n")
+	loggerGroup.Flush()
+}
+
+func TestChangeLoggerGroup(t *testing.T) {
+	os.RemoveAll("/var/tmp/belog-test")
+	filter := NewLogLevelFilter()
+	filter.SetLogLevel(LogLevelTrace)
+	formatter := NewStandardFormatter()
+	formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
+	formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(hostname) %(program) %(programCounter) %(loggerName) %(fileName) %(shortFileName) %(lineNum) %(message)")
+	handler1 := NewConsoleHandler()
+	handler1.SetOutputType(ConsoleOutputTypeStderr)
+	handler1.SetConsoleColor(LogLevelEmerg, ConsoleColorBlack)
+	handler2 := NewRotationFileHandler()
+	handler2.SetLogFileName("belog-test.log")
+	handler2.SetLogDirPath("/var/tmp/belog-test")
+	handler2.SetMaxAge(2)
+	handler2.SetMaxSize(65535)
+	handler2.SetAsync(true)
+	handler2.SetAsyncFlushInterval(3)
+	handler2.SetBufferSize(2048)
+	handler3 := NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
+	handlers := make([]Handler, 0, 0)
+	handlers = append(handlers, handler1)
+	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
+	SetLogger("logger1", filter, formatter, handlers)
+	SetLogger("logger2", filter, formatter, handlers)
+	loggerGroup := GetLoggerGroup("logger1", "logger2")
+	filter = NewLogLevelFilter()
+	filter.SetLogLevel(LogLevelInfo)
+	if err := loggerGroup.ChangeFilter(filter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	formatter = NewStandardFormatter()
+	formatter.SetDateTimeLayout("2006-01-02 15:04:05")
+	formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(hostname) %(program) %(loggerName) %(shortFileName) %(shortFileName) %(lineNum) %(message)")
+	if err := loggerGroup.ChangeFormatter(formatter); err != nil {
+		t.Errorf("%+v", err)
+	}
+	handler1 = NewConsoleHandler()
+	handler1.SetOutputType(ConsoleOutputTypeStderr)
+	handler1.SetConsoleColor(LogLevelEmerg, ConsoleColorBlack)
+	handler2 = NewRotationFileHandler()
+	handler2.SetLogFileName("belog-test-test.log")
+	handler2.SetLogDirPath("/var/tmp/belog-test")
+	handler2.SetMaxAge(2)
+	handler2.SetMaxSize(65535)
+	handler2.SetAsync(false)
+	handler2.SetAsyncFlushInterval(3)
+	handler2.SetBufferSize(2048)
+	handler3 = NewSyslogHandler()
+	handler3.SetNetworkAndAddr("", "")
+	handler3.SetTag("belog-test")
+	handler3.SetFacility("LOCAL7")
+	handlers = make([]Handler, 0, 0)
+	handlers = append(handlers, handler1)
+	handlers = append(handlers, handler2)
+	handlers = append(handlers, handler3)
+	if err := loggerGroup.ChangeHandlers(handlers); err != nil {
+		t.Errorf("%+v", err)
+	}
+	loggerGroup.Emerg("test\n")
+	loggerGroup.Alert("test\n")
+	loggerGroup.Crit("test\n")
+	loggerGroup.Error("test\n")
+	loggerGroup.Warn("test\n")
+	loggerGroup.Notice("test\n")
+	loggerGroup.Info("test\n")
+	loggerGroup.Debug("test\n")
+	loggerGroup.Trace("test\n")
+	loggerGroup.Flush()
 }

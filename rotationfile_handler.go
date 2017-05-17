@@ -34,6 +34,17 @@ type RotationFileHandler struct {
 	mutex              *sync.Mutex
 }
 
+//IsOpened is opened
+func (h *RotationFileHandler) IsOpened() (bool) {
+	h.mutex.Lock()
+	f := h.logFile
+	h.mutex.Unlock()
+	if f == nil  {
+		return false
+	}
+	return true
+}
+
 //Open is open file
 func (h *RotationFileHandler) Open() {
 	h.mutex.Lock()
