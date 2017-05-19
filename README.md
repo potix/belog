@@ -106,6 +106,8 @@ logger package
 
 ### setup Logger
 
+- logger name 'default' is not used, because reserved by defaultLogger.
+
 ```
 func init() {
 	// create filter
@@ -149,6 +151,7 @@ func init() {
 
 - Loadable config format are toml or yaml of json.
   - See test directory samples.
+- logger name 'default' is not used, because reserved by defaultLogger.
 
 ```
 --- sample.yaml ---
