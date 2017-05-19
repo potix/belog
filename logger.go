@@ -202,11 +202,35 @@ func GetLoggerGroup(names ...string) (loggerGroup *LoggerGroup) {
 	return loggerGroup
 }
 
+func updateDefaultLogger(filter Filter, formatter Formatter, handlers []Handler) (err error) {
+	err = defaultLogger.changeFilter(filter)
+	if err != nil {
+		return err
+	}
+	err = defaultLogger.changeFormatter(formatter)
+	if err != nil {
+		return err
+	}
+	err = defaultLogger.changeHandlers(handlers)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //SetLogger is set logger
 func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handler) (err error) {
 	if  filter == nil || formatter == nil || handlers == nil || len(handlers) == 0 {
 		return errors.Errorf("invalid argument")
 	}
+        // It bypass loggers to defaultLogger when name is "default"
+        if name == "default" {
+                err = updateDefaultLogger(filter, formatter, handlers)
+                if err != nil {
+                        return err
+                }
+                return nil
+        }
 	loggersMutex.Lock()
 	defer loggersMutex.Unlock()
 	if _, ok := loggers[name]; ok {
