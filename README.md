@@ -139,6 +139,7 @@ func init() {
 ## get logger
 
 - You can get mutiple logger.
+- if you get logger name is not exists, this return default togger.
 
 ```
 func init() {
