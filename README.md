@@ -186,12 +186,12 @@ func init() {
 
 ### setup logger from ConfigLoggers object
 
+```
 type my struct {
 	Alice *Person
         Logger *belog.ConfigLoggers
 }
 
-```
 func init() {
 
 	...
