@@ -11,7 +11,7 @@
 
       [[Loggers.test1.Formatter.StructSetters]]
         SetterName = "SetAppendNewLine"
-        SetterParams = [false]
+        SetterParams = ["false"]
 
       [[Loggers.test1.Formatter.StructSetters]]
         SetterName = "SetDateTimeLayout"

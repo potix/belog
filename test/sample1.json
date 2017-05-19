@@ -15,7 +15,7 @@
 				"StructSetters" : [
 					{
 						"SetterName":"SetAppendNewLine",
-						"SetterParams":[false]
+						"SetterParams":["false"]
 					},
 					{
 						"SetterName":"SetDateTimeLayout",
