@@ -14,6 +14,10 @@
 				"StructName" : "StandardFormatter",
 				"StructSetters" : [
 					{
+						"SetterName":"SetAppendNewLine",
+						"SetterParams":[false]
+					},
+					{
 						"SetterName":"SetDateTimeLayout",
 						"SetterParams":["2006-01-02 15:04:05 -0700 MST"]
 					},

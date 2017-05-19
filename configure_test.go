@@ -4,13 +4,13 @@ import (
 	"testing"
 )
 
-func TestLoadConfiagJson1(t *testing.T) {
+func TestLoadConfiagJSON1(t *testing.T) {
 	if err := LoadConfig("./test/sample1.jsn"); err != nil {
 		t.Errorf("%+v", err)
 	}
 }
 
-func TestLoadConfiagJson2(t *testing.T) {
+func TestLoadConfiagJSON2(t *testing.T) {
 	if err := LoadConfig("./test/sample1.json"); err != nil {
 		t.Errorf("%+v", err)
 	}

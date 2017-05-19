@@ -19,14 +19,14 @@ type jsonLogInfo struct {
 	Attrs      map[string]interface{}
 }
 
-//JsonFormatter is format json string
-type JsonFormatter struct {
+//JSONFormatter is format json string
+type JSONFormatter struct {
 	dateTimeLayout string
 	mutex          *sync.RWMutex
 }
 
 //Format is format log event to json string
-func (f *JsonFormatter) Format(loggerName string, log LogEvent) (formattedLog string, err error) {
+func (f *JSONFormatter) Format(loggerName string, log LogEvent) (formattedLog string, err error) {
 	f.mutex.RLock()
 	defer f.mutex.RUnlock()
 	jsonLogInfo := &jsonLogInfo{
@@ -50,22 +50,22 @@ func (f *JsonFormatter) Format(loggerName string, log LogEvent) (formattedLog st
 }
 
 //SetDateTimeLayout is set layout of date and time. See Time.Format.
-func (f *JsonFormatter) SetDateTimeLayout(dateTimeLayout string) {
+func (f *JSONFormatter) SetDateTimeLayout(dateTimeLayout string) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 	f.dateTimeLayout = dateTimeLayout
 }
 
-//NewJsonFormatter is create JsonFormatter
-func NewJsonFormatter() (jsonFormatter *JsonFormatter) {
-	return &JsonFormatter{
+//NewJSONFormatter is create JSONFormatter
+func NewJSONFormatter() (jsonFormatter *JSONFormatter) {
+	return &JSONFormatter{
 		dateTimeLayout: "2006-01-02 15:04:05 -0700 MST",
 		mutex:          new(sync.RWMutex),
 	}
 }
 
 func init() {
-	RegisterFormatter("JsonFormatter", func() (formatter Formatter) {
-		return NewJsonFormatter()
+	RegisterFormatter("JSONFormatter", func() (formatter Formatter) {
+		return NewJSONFormatter()
 	})
 }

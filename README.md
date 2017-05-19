@@ -30,7 +30,7 @@ logger package
   - LogLevelFilter: filter by log level
 * formatter
   - StandardFormatter: standard formatter
-  - JsonFormatter: json formatter
+  - JSONFormatter: json formatter
 * handler
   - ConsoleHadnler: output to console. support color.
   - SyslogHadnler: output to syslog
