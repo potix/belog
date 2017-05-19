@@ -8,24 +8,24 @@ logger package
 ```
                                                                         ---
  logging   --------        -----------        ---------                  |
-     ---> | filter | ---> | formatter | -+-> | handler | ---> console    |
+     ---> | filter1| ---> | formatter1| -+-> | handler1| ---> console    |
            --------        -----------   |    ---------                  |
                                          |    ---------                  |
-                                         +-> | handler | ---> file       |
+                                         +-> | handler2| ---> file       |
                                               ---------                  |
        |----------------- logger -----------------------|                |
                                                                          | logger group
  logging   --------        -----------        ---------                  |
-     ---> | filter | ---> | formatter | -+-> | handler | ---> console    |
+     ---> | filter2| ---> | formatter2| -+-> | handler1| ---> console    |
            --------        -----------   |    ---------                  |
                                          |    ---------                  |
-                                         +-> | handler | ---> file       |
+                                         +-> | handler2| ---> file       |
                                               ---------                  |
        |----------------- logger -----------------------|                |
                                                                         ---
 ```
 
-## includes
+## included componets
 * filter
   - LogLevelFilter: filter by log level
 * formatter
@@ -36,8 +36,7 @@ logger package
   - SyslogHadnler: output to syslog
   - RotationFileHandler: output to file and rotate file
 
-## use default logger
-* use default logger
+## logging with default logger
 
 ```
         belog.Emerg("test\n")
@@ -51,9 +50,7 @@ logger package
         belog.Trace("test\n")
 ```
 
-## change filter
-
-* change filter of default logger
+## change filter of default logger
 
 ```
         filter := belog.NewLogLevelFilter()
@@ -64,9 +61,7 @@ logger package
         }
 ```
 
-## change formatter
-
-* change formatter of default logger
+## change formatter of default logger
 
 ```
         formatter := belog.NewStandardFormatter()
@@ -78,9 +73,7 @@ logger package
         }
 ```
 
-## change handler
-
-* change filter of default logger
+## change handlers of default logger
 
 ```
         handler := belog.NewRotationFileHandler()
@@ -99,37 +92,55 @@ logger package
         }
 ```
  
-## setup loggers (no default logger)
+## setup custom loggers 
 
-* setup loggers
-  - if more than one of the logger is required
+- It is requred, if you need multiple logger.
 
-### use SetLogger
-* call new function and call setter and call SetLogger 
+### setup Logger
 
 ```
 func init() {
+	// create filter
         filter := belog.NewLogLevelFilter()
         filter.SetLogLevel(belog.LogLevelTrace)
+
+	// create formatter
         formatter := belog.NewStandardFormatter()
         formatter.SetDateTimeLayout("2006-01-02 15:04:05 -0700 MST")
         formatter.SetLayout("%(dateTime) [%(logLevel):%(logLevelNum)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(shortFileName) %(lineNum) %(message)")
+
+	// create handler
         handler := belog.NewRotationFileHandler()
         handler.SetLogFileName("belog-test.log")
         handler.SetLogDirPath("/var/tmp/belog-test")
         handler.SetMaxAge(10)
         handler.SetMaxSize(1024 * 1024 * 1024)
+
+	// add handlers
         handlers := make([]belog.Handler, 0)
         handlers = append(handlers, handler1)
         handlers = append(handlers, handler2)
+
+	// set logger
         belog.SetLogger("mylogger1", filter, formatter, handlers)
 }
 ```
 
-### use LoadConfig
-* create config and call LoadConfig
-  - yaml or json or toml
-  - see test directory sample
+## get logger
+
+- You can get mutiple logger
+
+```
+func init() {
+	logger := belog.GetLoggerGroup("mylogger1", "mylogger2")
+	logger.Info("test")
+}
+```
+
+### setup logger from config file
+
+- Loadable config format are toml or yaml of json
+  - See test directory sample
 
 ```
 --- sample.yaml ---
@@ -162,19 +173,27 @@ func init() {
 }
 ```
 
-## use logger group (no default logger)
-* get logger group
-  - can get mutiple logger
+### setup logger from ConfigLoggers object
+
+type my struct {
+	Alice *Person
+        Logger *belog.ConfigLoggers
+}
 
 ```
 func init() {
-	logger := belog.GetLoggerGroup("mylogger1", "mylogger2")
-	logger.Info("test")
+
+	...
+
+        if err := SetupLoggers(my.Logger); err != nil {
+               fmt.Println(err)
+        }
 }
 ```
 
-## custom fileter
-*  create stuct have filter interface
+## create custom fileter
+
+- Your filter struct have to method of filter interface
 
 ```
 type Filter interface {
@@ -182,8 +201,7 @@ type Filter interface {
 }
 ```
 
-* create new function and register filter 
-  - name is struct name of custom filter
+- You must create function, it must create filter struct and must return pointer of filter struct.
 
 ```
 func NewLogLevelFilter() (logLevelFilter *LogLevelFilter) {
@@ -192,7 +210,13 @@ func NewLogLevelFilter() (logLevelFilter *LogLevelFilter) {
                 mutex:    new(sync.RWMutex),
         }
 }
+```
 
+- Finally, you must register filter in init function.
+  - First argument of RegisterFilter function is your filter name.
+  - This process is requied,if you setup logger from config or from configLogger object. 
+
+```
 func init() {
         belog.RegisterFilter("LogLevelFilter", func() (filter belog.Filter) {
                 return NewLogLevelFilter()
@@ -200,8 +224,9 @@ func init() {
 }
 ```
 
-## custom formatter
-* create struct have formatter interface
+## create custom formatter
+
+- Your formatter struct have to method of formatter interface
 
 ```
 type Formatter interface {
@@ -209,8 +234,7 @@ type Formatter interface {
 }
 ```
 
-* create new function and register formatter
-  - name is struct name of custom formatter
+- You must create function, it must create formatter struct and must return pointer of formatter struct.
 
 ```
 func NewStandardFormatter() (standardFormatter *StandardFormatter) {
@@ -220,7 +244,13 @@ func NewStandardFormatter() (standardFormatter *StandardFormatter) {
                 mutex:          new(sync.RWMutex),
         }
 }
+```
 
+- Finally, you must register formatter in init function.
+  - First argument of RegisterFormatter function is your formatter name.
+  - This process is requied, if you setup logger from config or from configLogger object. 
+
+```
 func init() {
         belog.RegisterFormatter("StandardFormatter", func() (formatter belog.Formatter) {
                 return NewStandardFormatter()
@@ -228,9 +258,9 @@ func init() {
 }
 ```
 
-## custom handler
-*  create struct have handler interface
-  - name is struct name of custom handler
+## create custom handler
+
+- Your handler struct have to method of handler interface
 
 ```
 type Handler interface {
@@ -242,7 +272,7 @@ type Handler interface {
 }
 ```
 
-* create new function and register handler
+- You must create function, it must create handler struct and must return pointer of handler struct.
 
 ```
 func NewConsoleHandler() (consoleHandler *ConsoleHandler) {
@@ -251,7 +281,13 @@ func NewConsoleHandler() (consoleHandler *ConsoleHandler) {
                 mutex:      new(sync.RWMutex),
         }
 }
+```
 
+- Finally, you must register handler in init function.
+  - First argument of RegisterHandler function is your handler name.
+  - This process is requied,if you setup logger from config or from configLogger object. 
+
+```
 func init() {
         belog.RegisterHandler("ConsoleHandler", func() (handler belog.Handler) {
                 return NewConsoleHandler()
