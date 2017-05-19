@@ -100,7 +100,7 @@ logger package
         }
 ```
  
-## setup custom loggers 
+## setup your loggers 
 
 - It is requred, if you need multiple logger.
 
