@@ -27,14 +27,22 @@ logger package
 
 ## included componets
 * filter
-  - LogLevelFilter: filter by log level
+  * LogLevelFilter
+    - filter by log level.
 * formatter
-  - StandardFormatter: standard formatter
-  - JSONFormatter: json formatter
+  * StandardFormatter
+    - standard formatter
+  * JSONFormatter
+    - json formatter
 * handler
-  - ConsoleHadnler: output to console. color is supported.
-  - SyslogHadnler: output to syslog
-  - RotationFileHandler: output to file. rotation is supported.
+  * ConsoleHadnler
+    - output to console.
+    - color is supported.
+  * SyslogHadnler
+    - output to syslog
+  * RotationFileHandler
+    - output to file.
+    - rotation is supported.
 
 ## logging with default logger
 
@@ -128,7 +136,7 @@ func init() {
 
 ## get logger
 
-- You can get mutiple logger
+- You can get mutiple logger.
 
 ```
 func init() {
@@ -139,8 +147,8 @@ func init() {
 
 ### setup logger from config file
 
-- Loadable config format are toml or yaml of json
-  - See test directory sample
+- Loadable config format are toml or yaml of json.
+  - See test directory samples.
 
 ```
 --- sample.yaml ---
@@ -193,7 +201,7 @@ func init() {
 
 ## create custom fileter
 
-- Your filter struct have to method of filter interface
+- Your filter struct have to method of filter interface.
 
 ```
 type Filter interface {
@@ -226,7 +234,7 @@ func init() {
 
 ## create custom formatter
 
-- Your formatter struct have to method of formatter interface
+- Your formatter struct have to method of formatter interface.
 
 ```
 type Formatter interface {
@@ -260,7 +268,7 @@ func init() {
 
 ## create custom handler
 
-- Your handler struct have to method of handler interface
+- Your handler struct have to method of handler interface.
 
 ```
 type Handler interface {
@@ -296,7 +304,9 @@ func init() {
 ```
 
 ## log event
+
 * LogEvent interface
+
 ```
 type LogEvent interface {
         Program() (program string)
