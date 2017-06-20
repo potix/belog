@@ -1,75 +1,75 @@
 loggers:
   test1:
     filter:
-      structname: LogLevelFilter
-      structsetters:
-      - settername: SetLogLevel
-        setterparams:
+      structName: LogLevelFilter
+      structSetters:
+      - setterName: SetLogLevel
+        setterParams:
         - "8"
     formatter:
-      structname: StandardFormatter
-      structsetters:
-      - settername: SetAppendNewLine
-        setterparams:
+      structName: StandardFormatter
+      structSetters:
+      - setterName: SetAppendNewLine
+        setterParams:
         - "false"
-      - settername: SetDateTimeLayout
-        setterparams:
+      - setterName: SetDateTimeLayout
+        setterParams:
         - 2006-01-02 15:04:05 -0700 MST
-      - settername: SetLayout
-        setterparams:
+      - setterName: SetLayout
+        setterParams:
         - '%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)'
     handlers:
-    - structname: ConsoleHandler
-      structsetters:
-      - settername: SetOutputType
-        setterparams:
+    - structName: ConsoleHandler
+      structSetters:
+      - setterName: SetOutputType
+        setterParams:
         - "2"
-    - structname: SyslogHandler
-      structsetters:
-      - settername: SetNetworkAndAddr
-        setterparams:
+    - structName: SyslogHandler
+      structSetters:
+      - setterName: SetNetworkAndAddr
+        setterParams:
         - ""
         - ""
-      - settername: SetTag
-        setterparams:
+      - setterName: SetTag
+        setterParams:
         - "test"
-      - settername: SetFacility
-        setterparams:
+      - setterName: SetFacility
+        setterParams:
         - "Daemon"
-    - structname: RotationFileHandler
-      structsetters:
-      - settername: SetLogFileName
-        setterparams:
+    - structName: RotationFileHandler
+      structSetters:
+      - setterName: SetLogFileName
+        setterParams:
         - belog-test.log
-      - settername: SetLogDirPath
-        setterparams:
+      - setterName: SetLogDirPath
+        setterParams:
         - /var/tmp/belog-test
-      - settername: SetMaxAge
-        setterparams:
+      - setterName: SetMaxAge
+        setterParams:
         - "3"
-      - settername: SetMaxSize
-        setterparams:
+      - setterName: SetMaxSize
+        setterParams:
         - "65535"
-      - settername: SetAsync
-        setterparams:
+      - setterName: SetAsync
+        setterParams:
         - "true"
-      - settername: SetAsyncFlushInterval
-        setterparams:
+      - setterName: SetAsyncFlushInterval
+        setterParams:
         - "2"
-      - settername: SetBufferSize
-        setterparams:
+      - setterName: SetBufferSize
+        setterParams:
         - "1024"
   test2:
     filter:
-      structname: LogLevelFilter
-      structsetters: []
+      structName: LogLevelFilter
+      structSetters: []
     formatter:
-      structname: StandardFormatter
-      structsetters: []
+      structName: StandardFormatter
+      structSetters: []
     handlers:
-    - structname: ConsoleHandler
-      structsetters: []
-    - structname: SyslogHandler
-      structsetters: []
-    - structname: RotationFileHandler
-      structsetters: []
+    - structName: ConsoleHandler
+      structSetters: []
+    - structName: SyslogHandler
+      structSetters: []
+    - structName: RotationFileHandler
+      structSetters: []

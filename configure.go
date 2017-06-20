@@ -14,23 +14,23 @@ import (
 
 //ConfigLoggers is config of Loggers
 type ConfigLoggers struct {
-	Loggers map[string]configLogger
+	Loggers map[string]configLogger `json:"loggers" yaml:"loggers" toml:"loggers"`
 }
 
 type configLogger struct {
-	Filter    *configStruct
-	Formatter *configStruct
-	Handlers  []*configStruct
+	Filter    *configStruct   `json:"filter"    yaml:"filter"    toml:"filter"`
+	Formatter *configStruct   `json:"formatter" yaml:"formatter" toml:"formatter"`
+	Handlers  []*configStruct `json:"handlers"  yaml:"handlers"  toml:"handlers"`
 }
 
 type configStruct struct {
-	StructName    string
-	StructSetters []*configStructSetter
+	StructName    string                `json:"structName"    yaml:"structName"    toml:"structName"`
+	StructSetters []*configStructSetter `json:"structSetters" yaml:"structSetters" toml:"structSetters"`
 }
 
 type configStructSetter struct {
-	SetterName   string
-	SetterParams []string
+	SetterName   string   `json:"setterName"   yaml:"setterName"   toml:"setterName"`
+	SetterParams []string `json:"setterParams" yaml:"setterParams" toml:"setterParams"`
 }
 
 //LoadConfig is load configration file

@@ -1,89 +1,89 @@
-[Loggers]
-  [Loggers.test1]
-    [Loggers.test1.Filter]
-      StructName = "LogLevelFilter"
+[loggers]
+  [loggers.test1]
+    [loggers.test1.filter]
+      structName = "LogLevelFilter"
 
-      [[Loggers.test1.Filter.StructSetters]]
-        SetterName = "SetLogLevel"
-        SetterParams = ["8"]
-    [Loggers.test1.Formatter]
-      StructName = "StandardFormatter"
+      [[loggers.test1.filter.StructSetters]]
+        setterName = "SetLogLevel"
+        setterParams = ["8"]
+    [loggers.test1.formatter]
+      structName = "StandardFormatter"
 
-      [[Loggers.test1.Formatter.StructSetters]]
-        SetterName = "SetAppendNewLine"
-        SetterParams = ["false"]
+      [[loggers.test1.formatter.StructSetters]]
+        setterName = "SetAppendNewLine"
+        setterParams = ["false"]
 
-      [[Loggers.test1.Formatter.StructSetters]]
-        SetterName = "SetDateTimeLayout"
-        SetterParams = ["2006-01-02 15:04:05 -0700 MST"]
+      [[loggers.test1.formatter.StructSetters]]
+        setterName = "SetDateTimeLayout"
+        setterParams = ["2006-01-02 15:04:05 -0700 MST"]
 
-      [[Loggers.test1.Formatter.StructSetters]]
-        SetterName = "SetLayout"
-        SetterParams = ["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)"]
+      [[loggers.test1.formatter.StructSetters]]
+        setterName = "SetLayout"
+        setterParams = ["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)"]
 
-    [[Loggers.test1.Handlers]]
-      StructName = "ConsoleHandler"
+    [[loggers.test1.handlers]]
+      structName = "ConsoleHandler"
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetOutputType"
-        SetterParams = ["2"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetOutputType"
+        setterParams = ["2"]
 
-    [[Loggers.test1.Handlers]]
-      StructName = "SyslogHandler"
+    [[loggers.test1.handlers]]
+      structName = "SyslogHandler"
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetNetworkAndAddr"
-        SetterParams = ["", ""]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetNetworkAndAddr"
+        setterParams = ["", ""]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetTag"
-        SetterParams = ["test"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetTag"
+        setterParams = ["test"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetFacility"
-        SetterParams = ["DAEMON"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetFacility"
+        setterParams = ["DAEMON"]
 
-    [[Loggers.test1.Handlers]]
-      StructName = "RotationFileHandler"
+    [[loggers.test1.handlers]]
+      structName = "RotationFileHandler"
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetLogFileName"
-        SetterParams = ["belog-test.log"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetLogFileName"
+        setterParams = ["belog-test.log"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetLogDirPath"
-        SetterParams = ["/var/tmp/belog-test"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetLogDirPath"
+        setterParams = ["/var/tmp/belog-test"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetMaxAge"
-        SetterParams = ["3"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetMaxAge"
+        setterParams = ["3"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetMaxSize"
-        SetterParams = ["65535"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetMaxSize"
+        setterParams = ["65535"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetAsync"
-        SetterParams = ["true"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetAsync"
+        setterParams = ["true"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetAsyncFlushInterval"
-        SetterParams = ["2"]
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetAsyncFlushInterval"
+        setterParams = ["2"]
 
-      [[Loggers.test1.Handlers.StructSetters]]
-        SetterName = "SetBufferSize"
-        SetterParams = ["1024"]
-  [Loggers.test2]
-    [Loggers.test2.Filter]
-      StructName = "LogLevelFilter"
-    [Loggers.test2.Formatter]
-      StructName = "StandardFormatter"
+      [[loggers.test1.handlers.StructSetters]]
+        setterName = "SetBufferSize"
+        setterParams = ["1024"]
+  [loggers.test2]
+    [loggers.test2.filter]
+      structName = "LogLevelFilter"
+    [loggers.test2.formatter]
+      structName = "StandardFormatter"
 
-    [[Loggers.test2.Handlers]]
-      StructName = "ConsoleHandler"
+    [[loggers.test2.handlers]]
+      structName = "ConsoleHandler"
 
-    [[Loggers.test2.Handlers]]
-      StructName = "SyslogHandler"
+    [[loggers.test2.handlers]]
+      structName = "SyslogHandler"
 
-    [[Loggers.test2.Handlers]]
-      StructName = "RotationFileHandler"
+    [[loggers.test2.handlers]]
+      structName = "RotationFileHandler"
