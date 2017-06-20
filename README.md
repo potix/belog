@@ -242,7 +242,7 @@ func init() {
 
 ```
 type Formatter interface {
-        Format(loggerName string, log LogEvent) (logString string)
+        Format(loggerName string, log LogEvent) (formattedLog string, err error)
 }
 ```
 
@@ -276,7 +276,7 @@ func init() {
 
 ```
 type Handler interface {
-        IsOpened()
+        IsOpened() (bool)
         Open()
         Write(loggerName string, logEvent LogEvent, formattedLog string)
         Flush()
