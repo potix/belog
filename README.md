@@ -106,7 +106,7 @@ logger package
 
 ### setup Logger
 
-- logger name 'default' is not used, because reserved by defaultLogger.
+- Logger name 'default' is reserved by defaultLogger.
 
 ```
 func init() {
@@ -139,7 +139,7 @@ func init() {
 ## get logger
 
 - You can get mutiple logger.
-- if you get logger name is not exists, this return default togger.
+- If you get logger name is not exists, this return default togger.
 
 ```
 func init() {
@@ -151,8 +151,8 @@ func init() {
 ### setup logger from config file
 
 - Loadable config format are toml or yaml of json.
-  - See test directory samples.
-- logger name 'default' is not used, because reserved by defaultLogger.
+  - See samples of test directory.
+- Logger name 'default' is reserved by defaultLogger.
 
 ```
 --- sample.yaml ---
