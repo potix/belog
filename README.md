@@ -102,6 +102,7 @@ logger package
  
 ## setup your loggers 
 
+- You can use logger of your favorit setting.
 - It is requred, if you need multiple logger.
 
 ### setup Logger
