@@ -233,8 +233,13 @@ func SetLogger(name string, filter Filter, formatter Formatter, handlers []Handl
         }
 	loggersMutex.Lock()
 	defer loggersMutex.Unlock()
-	if _, ok := loggers[name]; ok {
-		return errors.Errorf("already esixts logger")
+	if logger, ok := loggers[name]; ok {
+		// overwrite
+		for _, handler := range logger.handlers {
+			if handler.IsOpened() {
+				handler.Close()
+			}
+		}
 	}
 	loggers[name] = &logger{
 		filter:    filter,

@@ -74,10 +74,25 @@ func LoadConfig(configFilePath string) (err error) {
 }
 
 // SetupLoggers is setup from configLoggets
-func SetupLoggers(configLoggers *ConfigLoggers) (err error) {
+func SetupLoggers(configLoggers *ConfigLoggers) (error) {
+	return setupLoggersBase(configLoggers, false)
+}
+
+// ValidateLoggers is setup from configLoggets
+func ValidateLoggers(configLoggers *ConfigLoggers) (error) {
+	return setupLoggersBase(configLoggers, true)
+}
+
+func setupLoggersBase(configLoggers *ConfigLoggers, dryrun bool) (err error) {
 	tmpLoggers := make(map[string]*logger)
+	if configLoggers == nil {
+		return errors.Errorf("empty config")
+	}
 	for name, loggerConfig := range configLoggers.Loggers {
-		// create filter
+		// get filter
+		if loggerConfig.Filter == nil {
+			return errors.Errorf("no filter")
+		}
 		filter, err := getFilter(loggerConfig.Filter.StructName)
 		if err != nil {
 			return errors.Errorf("not found filter (%v)", loggerConfig.Filter.StructName)
@@ -86,7 +101,10 @@ func SetupLoggers(configLoggers *ConfigLoggers) (err error) {
 		if err = setupInstance(filter, loggerConfig.Filter); err != nil {
 			return err
 		}
-		// create formatter
+		// get formatter
+		if loggerConfig.Formatter == nil {
+			return errors.Errorf("no formatter")
+		}
 		formatter, err := getFormatter(loggerConfig.Formatter.StructName)
 		if err != nil {
 			return errors.Errorf("not found formatter (%v)", loggerConfig.Formatter.StructName)
@@ -95,9 +113,13 @@ func SetupLoggers(configLoggers *ConfigLoggers) (err error) {
 		if err = setupInstance(formatter, loggerConfig.Formatter); err != nil {
 			return err
 		}
-		handlers := make([]Handler, 0, 0)
+		// check handlers
+		if loggerConfig.Handlers == nil {
+			return errors.Errorf("no handlers")
+		}
+		handlers := make([]Handler, 0, 1)
 		for _, configStruct := range loggerConfig.Handlers {
-			// create handler
+			// get handler
 			handler, err := getHandler(configStruct.StructName)
 			if err != nil {
 				return errors.Errorf("not found handler (%v)", configStruct.StructName)
@@ -115,10 +137,12 @@ func SetupLoggers(configLoggers *ConfigLoggers) (err error) {
 		}
 		tmpLoggers[name] = newLogger
 	}
-	for name, newLogger := range tmpLoggers {
-		err := SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
-		if err != nil {
-			// XXX statistics
+	if !dryrun {
+		for name, newLogger := range tmpLoggers {
+			err := SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
