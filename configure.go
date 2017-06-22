@@ -137,12 +137,13 @@ func setupLoggersBase(configLoggers *ConfigLoggers, dryrun bool) (err error) {
 		}
 		tmpLoggers[name] = newLogger
 	}
-	if !dryrun {
-		for name, newLogger := range tmpLoggers {
-			err := SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
-			if err != nil {
-				return err
-			}
+	if dryrun {
+		return nil
+	}
+	for name, newLogger := range tmpLoggers {
+		err := SetLogger(name, newLogger.filter, newLogger.formatter, newLogger.handlers)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
