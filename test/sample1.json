@@ -1,91 +1,91 @@
 {
-	"Loggers": {
+	"loggers": {
 		"test1": {
-			"Filter": {
-				"StructName" : "LogLevelFilter",
-				"StructSetters" : [
+			"filter": {
+				"structName" : "LogLevelFilter",
+				"structSetters" : [
 					{
-						"SetterName":"SetLogLevel",
-						"SetterParams": ["8"]
+						"setterName":"SetLogLevel",
+						"setterParams": ["8"]
 					}
 				]
 			},
-			"Formatter": {
-				"StructName" : "StandardFormatter",
-				"StructSetters" : [
+			"formatter": {
+				"structName" : "StandardFormatter",
+				"structSetters" : [
 					{
-						"SetterName":"SetAppendNewLine",
-						"SetterParams":["false"]
+						"setterName":"SetAppendNewLine",
+						"setterParams":["false"]
 					},
 					{
-						"SetterName":"SetDateTimeLayout",
-						"SetterParams":["2006-01-02 15:04:05 -0700 MST"]
+						"setterName":"SetDateTimeLayout",
+						"setterParams":["2006-01-02 15:04:05 -0700 MST"]
 					},
 					{
-						"SetterName":"SetLayout",
-						"SetterParams":["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)"]
+						"setterName":"SetLayout",
+						"setterParams":["%(dateTime) [%(logLevel)] (%(pid)) %(programCounter) %(loggerName) %(fileName) %(lineNum) %(message)"]
 					}
 				]
 			},
-			"Handlers" : [
+			"handlers" : [
 				{
-					"StructName" : "ConsoleHandler",
-					"StructSetters" : [
+					"structName" : "ConsoleHandler",
+					"structSetters" : [
 						{
-							"SetterName":"SetOutputType",
-							"SetterParams":["2"]
+							"setterName":"SetOutputType",
+							"setterParams":["2"]
 						}
 					]
 
 				},
 				{
-					"StructName" : "SyslogHandler",
-					"StructSetters" : [
+					"structName" : "SyslogHandler",
+					"structSetters" : [
 						{
-							"SetterName":"SetNetworkAndAddr",
-							"SetterParams":["", ""]
+							"setterName":"SetNetworkAndAddr",
+							"setterParams":["", ""]
 						},
 						{
-							"SetterName":"SetTag",
-							"SetterParams":["test"]
+							"setterName":"SetTag",
+							"setterParams":["test"]
 						},
 						{
-							"SetterName":"SetFacility",
-							"SetterParams":["DAEMON"]
+							"setterName":"SetFacility",
+							"setterParams":["DAEMON"]
 						}
 					]
 
 				},
 				{
-					"StructName" : "RotationFileHandler",
-					"StructSetters" : [
+					"structName" : "RotationFileHandler",
+					"structSetters" : [
 						{
-							"SetterName":"SetLogFileName",
-							"SetterParams":["belog-test.log"]
+							"setterName":"SetLogFileName",
+							"setterParams":["belog-test.log"]
 						},
 						{
-							"SetterName":"SetLogDirPath",
-							"SetterParams":["/var/tmp/belog-test"]
+							"setterName":"SetLogDirPath",
+							"setterParams":["/var/tmp/belog-test"]
 						},
 						{
-							"SetterName":"SetMaxAge",
-							"SetterParams":["3"]
+							"setterName":"SetMaxAge",
+							"setterParams":["3"]
 						},
 						{
-							"SetterName":"SetMaxSize",
-							"SetterParams":["65535"]
+							"setterName":"SetMaxSize",
+							"setterParams":["65535"]
 						},
 						{
-							"SetterName":"SetAsync",
-							"SetterParams":["true"]
+							"setterName":"SetAsync",
+							"setterParams":["true"]
 						},
 						{
-							"SetterName":"SetAsyncFlushInterval",
-							"SetterParams":["2"]
+							"setterName":"SetAsyncFlushInterval",
+							"setterParams":["2"]
 						},
 						{
-							"SetterName":"SetBufferSize",
-							"SetterParams":["1024"]
+							"setterName":"SetBufferSize",
+							"setterParams":["1024"]
 						}
 					]
 
@@ -93,21 +93,21 @@
 			]
 		},
 		"test2": {
-			"Filter": {
-				"StructName" : "LogLevelFilter"
+			"filter": {
+				"structName" : "LogLevelFilter"
 			},
-			"Formatter": {
-				"StructName" : "StandardFormatter"
+			"formatter": {
+				"structName" : "StandardFormatter"
 			},
-			"Handlers" : [
+			"handlers" : [
 				{
-					"StructName" : "ConsoleHandler"
+					"structName" : "ConsoleHandler"
 				},
 				{
-					"StructName" : "SyslogHandler"
+					"structName" : "SyslogHandler"
 				},
 				{
-					"StructName" : "RotationFileHandler"
+					"structName" : "RotationFileHandler"
 				}
 			]
 		}
