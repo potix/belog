@@ -22,7 +22,7 @@ func (f *StandardFormatter) Format(loggerName string, log LogEvent) (formattedLo
 	defer f.mutex.RUnlock()
 	logMessage := log.Message()
 	if f.appendNewLine {
-		if logMessage[len(logMessage) - 1:] != "\n" {
+		if len(logMessage) == 0 || logMessage[len(logMessage) - 1:] != "\n" {
 			logMessage = logMessage + "\n"
 		}
 	}
